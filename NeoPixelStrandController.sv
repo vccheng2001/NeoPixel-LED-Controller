@@ -11,14 +11,14 @@ module NeoPixelStrandController
  output logic neo_data, ready_to_load, ready_to_send);
 
  // Define color logic 
- logic [2:0][7:0] G, R, B;
- logic [2:0][23:0] LED_Command;
+ logic [4:0][7:0] G, R, B;
+ logic [4:0][23:0] LED_Command;
 
  // Assign LED Commands to create display packet
  genvar i; 
  generate
  for (i = 0; i < 5; i++) begin: LED_Commands
-    assign LED_Command[i] = {G[i],R[i],B[i]};
+    assign LED_Command[i] = {G[i],R[i],B[i]}; // 6*5 = 30 hex = 120 bits 
  end
  endgenerate
 
