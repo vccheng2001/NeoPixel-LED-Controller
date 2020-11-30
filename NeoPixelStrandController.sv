@@ -41,10 +41,10 @@ module NeoPixelStrandController
 
   // FSM logic for states/output values
   always_comb begin
-    send_en = 0; send_clear = 0;
     case (currstate)
       IDLE: begin
         // Upon reset, ready to load/send 
+        send_en = 0; send_clear = 1;
         ready_to_load = 1; ready_to_send = 1;
         nextstate = (send_it)? SENDING: IDLE; 
         // Load a specified color value into R, G, or B for one LED
@@ -59,9 +59,15 @@ module NeoPixelStrandController
 
       // Sending Serial bit stream 
       SENDING: begin 
-          ready_to_load = 0; ready_to_send = 0; 
-          send_en = 1; send_clear = 0; // Begin counting 
-          nextstate = (send_count == 7'd120)? IDLE: SENDING; 
+          if (send_count == 7'd120) begin 
+              nextstate = IDLE;
+              send_en = 0; send_clear = 1;
+              ready_to_load = 1; ready_to_send = 1;
+          end else begin 
+             nextstate = SENDING;
+              send_en = 1; send_clear = 0;
+              ready_to_load = 0; ready_to_send = 0;
+          end
       end
       
     endcase
