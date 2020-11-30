@@ -20,8 +20,8 @@ module NeoPixelStrandController_test;
 
   // Simulates test
   initial begin
-    $monitor($time," Reset=%d, Curr=%s, Next=%s, LI=%d, SI=%d, RL=%b, RS=%b, G=%h, R=%h,B=%h, CI=%d,PI=%d,CL=%h,SCnt=%d",
-    reset, dut.currstate.name, dut.nextstate.name, load_color, send_it, ready_to_load, ready_to_send, dut.G, dut.R, dut.B, color_index, pixel_index, color_level, dut.send_count);
+    $monitor($time," Reset=%d, Curr=%s, Next=%s, LI=%d, SI=%d, RL=%b, RS=%b, G=%h, R=%h,B=%h, CI=%d,PI=%d,CL=%h,SCnt=%d, W50=%d",
+    reset, dut.currstate.name, dut.nextstate.name, load_color, send_it, ready_to_load, ready_to_send, dut.G, dut.R, dut.B, color_index, pixel_index, color_level, dut.send_count, dut.wait50_count);
     reset = 1; 
     load_color = 0; send_it = 0;
     color_index = 2'b00; pixel_index = 3'd0; color_level = 8'h00;
@@ -43,6 +43,6 @@ module NeoPixelStrandController_test;
     @(posedge clock);
 
     $display("LED Command=%h", dut.LED_Command);
-    #100000000 $finish;            
+    #1000000 $finish;            
   end
 endmodule: NeoPixelStrandController_test

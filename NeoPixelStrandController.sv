@@ -31,8 +31,14 @@ module NeoPixelStrandController
   counter #(7) send (.en(send_en), .clear(send_clear), .q(send_count),
                               .d(7'd0), .clock(clock), .reset(reset));
 
+  // Wait 50 microseconds between each display packet
+  logic [11:0] wait50_count;
+  logic wait50_en, wait50_clear;
+
+  counter #(12) wait50 (.en(wait50_en), .clear(wait50_clear), .q(wait50_count),
+                              .d(12'd0), .clock(clock), .reset(reset));
   // States
-  enum logic [1:0] {IDLE, SENDING} currstate, nextstate;
+  enum logic [1:0] {IDLE, SENDING, WAIT} currstate, nextstate;
 
   // Next state logic 
   always_ff @(posedge clock, posedge reset)
@@ -41,6 +47,7 @@ module NeoPixelStrandController
 
   // FSM logic for states/output values
   always_comb begin
+    wait50_en = 0; wait50_clear = 1;
     case (currstate)
       IDLE: begin
         // Upon reset, ready to load/send 
@@ -60,17 +67,35 @@ module NeoPixelStrandController
       // Sending Serial bit stream 
       SENDING: begin 
           if (send_count == 7'd120) begin 
-              nextstate = IDLE;
+              nextstate = WAIT;
               send_en = 0; send_clear = 1;
-              ready_to_load = 1; ready_to_send = 1;
+              ready_to_load = 1; ready_to_send = 0;
           end else begin 
              nextstate = SENDING;
               send_en = 1; send_clear = 0;
               ready_to_load = 0; ready_to_send = 0;
           end
       end
+      // Must wait 50 microseconds before sending another display packet 
+
+      WAIT: begin 
+          send_en = 0; send_clear = 1;
+          // If waited 50 microseconds 
+          if (wait50_count == 12'd2500) begin 
+              nextstate = IDLE;
+              // Clear wait 
+              wait50_en = 0; wait50_clear = 1;
+              ready_to_load = 1; ready_to_send = 1;
+          end else begin 
+              nextstate = WAIT;
+              // Count
+              wait50_en = 1; wait50_clear = 0;
+              ready_to_load = 1; ready_to_send = 0;
+          end 
+      end 
       
     endcase
+    
   end
 endmodule:NeoPixelStrandController
 
