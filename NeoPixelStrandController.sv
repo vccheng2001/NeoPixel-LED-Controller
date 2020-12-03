@@ -107,7 +107,7 @@ module NeoPixelStrandController
         done_high = 0; done_low = 0;
 
         // Iterated through all 120 pixels in display packet 
-        if (send_count == 7'd11) begin 
+        if (send_count == 7'd120) begin 
             neo_data = 1'bx;
             nextstate = WAIT;
             send_en = 0; send_clear = 1;
@@ -145,7 +145,7 @@ module NeoPixelStrandController
         // One-bit: 35 cycles high, 30 cycles low 
         if (!done_high & !done_low) begin
           nextstate = SEND1;  
-          if (cycle_count == 5) begin 
+          if (cycle_count == 35) begin 
             neo_data = 0; 
             done_high = 1; cycle_en = 1; cycle_clear = 0; 
           end else begin 
@@ -156,7 +156,7 @@ module NeoPixelStrandController
 
         // Finished 35 cycles of ones
         else if (done_high & !done_low) begin 
-          if (cycle_count == 9) begin 
+          if (cycle_count == 64) begin  // 35 + 30 - 1
             nextstate = SEND;
             neo_data = 0;
             done_low = 1; cycle_en = 0; cycle_clear = 1;  
@@ -168,14 +168,16 @@ module NeoPixelStrandController
         end 
 
       end
-
+    /******************************************************************/
+    /*       SEND A ZERO-BIT: 18 cycles high, 40 cycles low            */
+    /******************************************************************/
 
       SEND0: begin 
         send_en = 0; send_clear = 0;
         // Zero-bit: 18 cycles high, 40 cycles low 
         if (!done_high & !done_low) begin
           nextstate = SEND0;  
-          if (cycle_count == 3) begin 
+          if (cycle_count == 18) begin 
             neo_data = 0; 
             done_high = 1; cycle_en = 1; cycle_clear = 0; 
           end else begin 
@@ -186,7 +188,7 @@ module NeoPixelStrandController
 
         // Finished 35 cycles of ones
         else if (done_high & !done_low) begin 
-          if (cycle_count == 5) begin 
+          if (cycle_count == 57) begin  // 18 + 40 - 1
             nextstate = SEND;
             neo_data = 0;
             done_low = 1; cycle_en = 0; cycle_clear = 1;  

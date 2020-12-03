@@ -25,8 +25,8 @@ module NeoPixelStrandController_test;
     // reset, dut.currstate.name, dut.nextstate.name, load_color, send_it, ready_to_load, ready_to_send, dut.G, dut.R, dut.B, color_index, pixel_index, color_level, dut.send_count, dut.wait50_count);
     // $monitor($time," Reset=%d, Curr=%s, Next=%s, LI=%d, SI=%d, DP[sc]=%h, NeoData=%b, SCnt=%d, W50=%d",
     // reset, dut.currstate.name, dut.nextstate.name, load_color, send_it, dut.display_packet, dut.neo_data, dut.send_count, dut.wait50_count);
-    $monitor($time," Reset=%d, Curr=%s, Next=%s, Bit=%b, NeoData=%b, SCnt=%d, CC=%d, DHi=%b, DLo=%d,",
-    reset, dut.currstate.name, dut.nextstate.name, dut.display_packet[10:0],dut.neo_data, dut.send_count, dut.cycle_count, dut.done_high, dut.done_low );
+    $monitor($time," Reset=%d, Curr=%s, Next=%s, Bit=%b, NeoData=%b, SCnt=%d, CC=%d, W50=%d",
+    reset, dut.currstate.name, dut.nextstate.name, dut.display_packet[10:0],dut.neo_data, dut.send_count, dut.cycle_count,dut.wait50_count);
  
     reset = 1; 
     load_color = 0; send_it = 0;
