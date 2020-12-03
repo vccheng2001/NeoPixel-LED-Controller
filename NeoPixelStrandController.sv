@@ -23,7 +23,7 @@ module NeoPixelStrandController
  endgenerate
 
 
-  // Counter for sending 5 display commands
+  // Counter for SEND 5 display commands
   // 5 LEDs * 24 bits/command = 120 bits to send 
   logic [6:0] send_count;
   logic send_en, send_clear;
@@ -38,51 +38,70 @@ module NeoPixelStrandController
   counter #(12) wait50 (.en(wait50_en), .clear(wait50_clear), .q(wait50_count),
                               .d(12'd0), .clock(clock), .reset(reset));
   // States
-  enum logic [1:0] {IDLE, SENDING, WAIT} currstate, nextstate;
+  enum logic [2:0] {RESET, LOAD, SEND, WAIT} currstate, nextstate;
 
   // Next state logic 
   always_ff @(posedge clock, posedge reset)
-    if (reset) currstate <= IDLE;  
+    if (reset)currstate <= RESET; 
     else currstate <= nextstate;   
 
   // FSM logic for states/output values
   always_comb begin
     wait50_en = 0; wait50_clear = 1;
     case (currstate)
-      IDLE: begin
+      RESET: begin
         // Upon reset, ready to load/send 
         send_en = 0; send_clear = 1;
         ready_to_load = 1; ready_to_send = 1;
-        nextstate = (send_it)? SENDING: IDLE; 
-        // Load a specified color value into R, G, or B for one LED
+        G = 40'd0; R = 40'd0; B = 40'd0;
+        // Load a specified color value into R, G, or B for one LED 
         if (load_color) begin 
+           nextstate = LOAD;
            case(color_index) 
-               2'b00: R[pixel_index] = color_level; // Red
-               2'b01: B[pixel_index] = color_level; // Blue
-               2'b10: G[pixel_index] = color_level; // Green 
+              2'b00: R[pixel_index] = color_level; // Red
+              2'b01: B[pixel_index] = color_level; // Blue
+              2'b10: G[pixel_index] = color_level; // Green 
            endcase
+        // Send 
+        end else if (send_it) nextstate = SEND;
+        // Stay in IDLE
+        else nextstate = RESET;
+      end
+      LOAD: begin
+        send_en = 0; send_clear = 1;
+        ready_to_load = 1; ready_to_send = 1;
+        // Load a specified color value into R, G, or B for one LED 
+        if (send_it) nextstate = SEND;
+        else begin
+          nextstate = LOAD;
+          if (load_color) begin 
+            case(color_index) 
+                2'b00: R[pixel_index] = color_level; // Red
+                2'b01: B[pixel_index] = color_level; // Blue
+                2'b10: G[pixel_index] = color_level; // Green 
+            endcase
+          end
         end
       end
-
-      // Sending Serial bit stream 
-      SENDING: begin 
+      // SEND Serial bit stream 
+      SEND: begin 
           if (send_count == 7'd120) begin 
               nextstate = WAIT;
               send_en = 0; send_clear = 1;
               ready_to_load = 1; ready_to_send = 0;
           end else begin 
-             nextstate = SENDING;
+             nextstate = SEND;
               send_en = 1; send_clear = 0;
               ready_to_load = 0; ready_to_send = 0;
           end
       end
-      // Must wait 50 microseconds before sending another display packet 
+      // Must wait 50 microseconds before SEND another display packet 
 
       WAIT: begin 
           send_en = 0; send_clear = 1;
           // If waited 50 microseconds 
           if (wait50_count == 12'd2500) begin 
-              nextstate = IDLE;
+              nextstate = RESET;
               // Clear wait 
               wait50_en = 0; wait50_clear = 1;
               ready_to_load = 1; ready_to_send = 1;
