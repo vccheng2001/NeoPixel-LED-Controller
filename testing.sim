@@ -1,6 +1,6 @@
 Chronologic VCS simulator copyright 1991-2014
 Contains Synopsys proprietary information.
-Compiler version J-2014.12-SP3-1_Full64; Runtime version J-2014.12-SP3-1_Full64;  Dec  2 23:34 2020
+Compiler version J-2014.12-SP3-1_Full64; Runtime version J-2014.12-SP3-1_Full64;  Dec  2 23:52 2020
                    0 Reset=1, Curr=RESET, Next=RESET, Bit=00000000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
                    1 Reset=0, Curr=RESET, Next=RESET, Bit=00000000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
                    3 Reset=0, Curr=RESET, Next=LOAD, Bit=00000000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
@@ -9616,5 +9616,5 @@ $finish called from file "NeoPixelStrandController_test.sv", line 54.
 $finish at simulation time              1000017
            V C S   S i m u l a t i o n   R e p o r t 
 Time: 1000017
-CPU Time:      0.250 seconds;       Data structure size:   0.0Mb
-Wed Dec  2 23:34:57 2020
+CPU Time:      0.230 seconds;       Data structure size:   0.0Mb
+Wed Dec  2 23:52:12 2020
