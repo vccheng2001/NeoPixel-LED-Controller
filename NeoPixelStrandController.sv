@@ -13,6 +13,7 @@ module NeoPixelStrandController
  // Define color logic 
  logic [4:0][7:0] G, R, B;
  logic [4:0][23:0] LED_Command;
+ logic [119:0] display_packet;
 
  // Assign LED Commands to create display packet
  genvar i; 
@@ -21,6 +22,8 @@ module NeoPixelStrandController
     assign LED_Command[i] = {G[i],R[i],B[i]}; // 6*5 = 30 hex = 120 bits 
  end
  endgenerate
+
+ assign display_packet = LED_Command;
 
 
   // Counter for SEND 5 display commands
@@ -42,7 +45,7 @@ module NeoPixelStrandController
 
   // Next state logic 
   always_ff @(posedge clock, posedge reset)
-    if (reset)currstate <= RESET; 
+    if (reset) currstate <= RESET; 
     else currstate <= nextstate;   
 
   // FSM logic for states/output values
@@ -85,15 +88,16 @@ module NeoPixelStrandController
       end
       // SEND Serial bit stream 
       SEND: begin 
-          if (send_count == 7'd120) begin 
-              nextstate = WAIT;
-              send_en = 0; send_clear = 1;
-              ready_to_load = 1; ready_to_send = 0;
-          end else begin 
-             nextstate = SEND;
-              send_en = 1; send_clear = 0;
-              ready_to_load = 0; ready_to_send = 0;
-          end
+        if (send_count == 7'd120) begin 
+            nextstate = WAIT;
+            send_en = 0; send_clear = 1;
+            ready_to_load = 1; ready_to_send = 0;
+        end else begin
+            nextstate = SEND; 
+            neo_data = display_packet[send_count];
+            send_en = 1; send_clear = 0;
+            ready_to_load = 0; ready_to_send = 0;
+        end
       end
       // Must wait 50 microseconds before SEND another display packet 
 
