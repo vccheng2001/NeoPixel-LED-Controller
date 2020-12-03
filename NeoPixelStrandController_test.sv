@@ -1,6 +1,8 @@
 `default_nettype none
 
-// Load color with randomly-generated fields
+/******************************************************************/
+//    Generate random constrained fields for load_color
+/*******************************************************************/
 // Pixel index: num of LED (0-4)
 // Color index: R = 2'b00, B = 2'b01, G = 2'b10;
 // Color_level: 0 to 255
@@ -16,7 +18,7 @@ class genLoadColor;
   // brightness 0 to 255
   constraint cl { 8'h00 <= color_level <= 8'hff; }
 
-  function display_load_color();
+  function display_randomized_colors();
     $display("Rand PI= %d, Rand CI=%d, Rand CL=%h", pixel_index, color_index, color_level);
   endfunction
 endclass 
@@ -25,12 +27,19 @@ endclass
 
 // Testbench module
 module NeoPixelStrandController_test;
-   logic [7:0] color_level;
-   logic [1:0] color_index;
-   logic [2:0] pixel_index;
    logic clock, reset;
-   logic load_color, send_it;
+
+   logic [2:0] pixel_index;           // Fields for load_color 
+   logic [1:0] color_index;
+   logic [7:0] color_level;
+
+   logic load_color, send_it;         // Signals 
    logic neo_data, ready_to_load, ready_to_send;
+
+   // R, G, B
+   logic [4:0][7:0] G, R, B;
+   // Commands 
+   logic [4:0][23:0] LED_Command;
    logic [119:0] display_packet;
 
   // Instantiate dut
@@ -56,6 +65,7 @@ module NeoPixelStrandController_test;
  
     reset = 1; 
     load_color = 0; send_it = 0;
+    // Init to 0
     color_index = 2'b00; pixel_index = 3'd0; color_level = 8'h00;
     @(posedge clock);          
     reset <= 0;
@@ -70,7 +80,7 @@ module NeoPixelStrandController_test;
       pixel_index <= lc.pixel_index;
       color_index <= lc.color_index;
       color_level <= lc.color_level;
-      $display("Rand PI= %d, Rand CI=%d, Rand CL=%h", lc.pixel_index, lc.color_index, lc.color_level);
+      lc.display_randomized_colors();
       @(posedge clock);
     end 
 
@@ -84,4 +94,31 @@ module NeoPixelStrandController_test;
     $display("LED Command=%h", dut.LED_Command);
     #100000 $finish;            
   end
+
+
+/******************************************************************/
+/*                          ASSERTIONS                            */
+/******************************************************************/
+
+assert property (load_color_prop) else $error ("Color was not loaded correctly");
+
+/******************************************************************/
+/*                         PROPERTIES                             */
+/******************************************************************/
+
+// Make sure color is loaded correctly
+property load_color_prop;
+    logic [2:0] pi;       // Fields for load_color 
+    logic [1:0] ci;
+    logic [7:0] cl;
+
+    @(posedge clock) (load_color, pi = lc.pixel_index, ci = lc.color_index, cl = lc.color_level)
+    |=> (R[pi] == cl | B[pi] == cl | G[pi] == cl);
+    // else if (ci == 2'b01)|=> B[pi] == cl;
+    // else if (cl == 2'b10) |=> G[pi] == cl;
+
+endproperty: load_color_prop
+
+
 endmodule: NeoPixelStrandController_test
+

@@ -1,6 +1,6 @@
 Chronologic VCS simulator copyright 1991-2014
 Contains Synopsys proprietary information.
-Compiler version J-2014.12-SP3-1_Full64; Runtime version J-2014.12-SP3-1_Full64;  Dec  3 00:51 2020
+Compiler version J-2014.12-SP3-1_Full64; Runtime version J-2014.12-SP3-1_Full64;  Dec  3 01:12 2020
                    0 Reset=1, Curr=RESET, Next=RESET, LI=0, SI=0, RL=1, RS=1,DispPacket=000000000000000000000000000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
                    1 Reset=0, Curr=RESET, Next=RESET, LI=0, SI=0, RL=1, RS=1,DispPacket=000000000000000000000000000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 3, Rand CI=0, Rand CL=cc
@@ -8,42 +8,122 @@ Rand PI= 3, Rand CI=0, Rand CL=cc
 Rand PI= 1, Rand CI=0, Rand CL=ab
                    5 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=00000000cc0000000000ab00000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 3, Rand CI=0, Rand CL=5e
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 5s failed at 7s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 7
+Color was not loaded correctly
                    7 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=000000005e0000000000ab00000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 4, Rand CI=2, Rand CL=83
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 7s failed at 9s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 9
+Color was not loaded correctly
                    9 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=830000005e0000000000ab00000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 4, Rand CI=0, Rand CL=d0
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 9s failed at 11s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 11
+Color was not loaded correctly
                   11 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83d000005e0000000000ab00000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 2, Rand CI=0, Rand CL=90
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 11s failed at 13s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 13
+Color was not loaded correctly
                   13 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83d000005e0000900000ab00000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 4, Rand CI=0, Rand CL=e1
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 13s failed at 15s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 15
+Color was not loaded correctly
                   15 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83e100005e0000900000ab00000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 3, Rand CI=2, Rand CL=f6
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 15s failed at 17s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 17
+Color was not loaded correctly
                   17 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83e100f65e0000900000ab00000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 4, Rand CI=1, Rand CL=88
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 17s failed at 19s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 19
+Color was not loaded correctly
                   19 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83e188f65e0000900000ab00000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 1, Rand CI=2, Rand CL=ed
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 19s failed at 21s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 21
+Color was not loaded correctly
                   21 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83e188f65e00009000edab00000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 2, Rand CI=2, Rand CL=20
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 21s failed at 23s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 23
+Color was not loaded correctly
                   23 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83e188f65e00209000edab00000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 0, Rand CI=1, Rand CL=65
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 23s failed at 25s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 25
+Color was not loaded correctly
                   25 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83e188f65e00209000edab00000065, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 3, Rand CI=0, Rand CL=59
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 25s failed at 27s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 27
+Color was not loaded correctly
                   27 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83e188f65900209000edab00000065, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 4, Rand CI=0, Rand CL=bd
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 27s failed at 29s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 29
+Color was not loaded correctly
                   29 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83bd88f65900209000edab00000065, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 3, Rand CI=2, Rand CL=9a
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 29s failed at 31s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 31
+Color was not loaded correctly
                   31 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83bd889a5900209000edab00000065, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 1, Rand CI=1, Rand CL=d2
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 31s failed at 33s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 33
+Color was not loaded correctly
                   33 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83bd889a5900209000edabd2000065, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 2, Rand CI=1, Rand CL=bc
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 33s failed at 35s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 35
+Color was not loaded correctly
                   35 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83bd889a59002090bcedabd2000065, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 0, Rand CI=0, Rand CL=c5
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 35s failed at 37s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 37
+Color was not loaded correctly
                   37 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83bd889a59002090bcedabd200c565, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 3, Rand CI=0, Rand CL=b8
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 37s failed at 39s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 39
+Color was not loaded correctly
                   39 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=83bd889ab8002090bcedabd200c565, NeoData=x, SCnt=  0, CC=  0, W50=   0
 Rand PI= 4, Rand CI=0, Rand CL=89
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 39s failed at 41s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 41
+Color was not loaded correctly
                   41 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=1,DispPacket=8389889ab8002090bcedabd200c565, NeoData=x, SCnt=  0, CC=  0, W50=   0
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 41s failed at 43s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 43
+Color was not loaded correctly
                   43 Reset=0, Curr=LOAD, Next=SEND, LI=0, SI=1, RL=1, RS=1,DispPacket=8389889ab8002090bcedabd200c565, NeoData=x, SCnt=  0, CC=  0, W50=   0
+"NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: started at 43s failed at 45s
+	Offending '(((R[pi] == cl) | (B[pi] == cl)) | (G[pi] == cl))'
+Error: "NeoPixelStrandController_test.sv", 103: NeoPixelStrandController_test.unnamed$$_3: at time 45
+Color was not loaded correctly
                   45 Reset=0, Curr=SEND, Next=SEND1, LI=0, SI=0, RL=0, RS=0,DispPacket=8389889ab8002090bcedabd200c565, NeoData=1, SCnt=  0, CC=  0, W50=   0
 LED Command=8389889ab8002090bcedabd200c565
                   47 Reset=0, Curr=SEND1, Next=SEND1, LI=0, SI=0, RL=0, RS=0,DispPacket=8389889ab8002090bcedabd200c565, NeoData=1, SCnt=  1, CC=  1, W50=   0
@@ -9837,9 +9917,9 @@ LED Command=8389889ab8002090bcedabd200c565
                19623 Reset=0, Curr=WAIT, Next=WAIT, LI=0, SI=0, RL=1, RS=0,DispPacket=8389889ab8002090bcedabd200c565, NeoData=x, SCnt=  0, CC=  0, W50=2499
                19625 Reset=0, Curr=WAIT, Next=RESET, LI=0, SI=0, RL=1, RS=1,DispPacket=8389889ab8002090bcedabd200c565, NeoData=x, SCnt=  0, CC=  0, W50=2500
                19627 Reset=0, Curr=RESET, Next=RESET, LI=0, SI=0, RL=1, RS=1,DispPacket=000000000000000000000000000000, NeoData=x, SCnt=  0, CC=  0, W50=   0
-$finish called from file "NeoPixelStrandController_test.sv", line 85.
+$finish called from file "NeoPixelStrandController_test.sv", line 95.
 $finish at simulation time               100047
            V C S   S i m u l a t i o n   R e p o r t 
 Time: 100047
-CPU Time:      0.250 seconds;       Data structure size:   0.0Mb
-Thu Dec  3 00:51:08 2020
+CPU Time:      0.240 seconds;       Data structure size:   0.0Mb
+Thu Dec  3 01:12:23 2020
