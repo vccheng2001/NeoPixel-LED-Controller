@@ -47,7 +47,7 @@ module Task2
     load_it = 0; send_it = 0; 
     case (currstate)
       IDLE_OR_LOAD: begin
-        if (!ready_to_load) nextstate = IDLE_OR_LOAD; 
+        if (!ready_to_load && !ready_to_send) nextstate = IDLE_OR_LOAD; 
         else if (ready_to_load) begin 
           nextstate = IDLE_OR_LOAD;
           load_it = 1; 
