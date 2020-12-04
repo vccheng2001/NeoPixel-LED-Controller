@@ -45,6 +45,23 @@ module Task2_test();
     @(posedge clock);
     @(posedge clock);
     @(posedge clock);
+    @(posedge clock);
+    @(posedge clock);
+    @(posedge clock);
+    @(posedge clock);
+    ready_to_load <= 1; ready_to_send <= 0; // send 
+    @(posedge clock);
+    ready_to_load <= 1;
+    @(posedge clock);
+    ready_to_load <= 1;
+    @(posedge clock);
+    @(posedge clock);
+    @(posedge clock);
+    @(posedge clock);
+    @(posedge clock);
+    @(posedge clock);
+    ready_to_load <= 0; ready_to_send <= 0;
+    @(posedge clock);
     #1000 $finish;            
   end
 

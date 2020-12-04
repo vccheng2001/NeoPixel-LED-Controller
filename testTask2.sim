@@ -1,6 +1,6 @@
 Chronologic VCS simulator copyright 1991-2014
 Contains Synopsys proprietary information.
-Compiler version J-2014.12-SP3-1_Full64; Runtime version J-2014.12-SP3-1_Full64;  Dec  4 01:36 2020
+Compiler version J-2014.12-SP3-1_Full64; Runtime version J-2014.12-SP3-1_Full64;  Dec  4 01:44 2020
                    0 Reset=1, Curr=IDLE_OR_LOAD, Next=, LI=0, SI=0, RL=x, RS=x,  CI=0,PI=0,CL=00
                    1 Reset=0, Curr=IDLE_OR_LOAD, Next=IDLE_OR_LOAD, LI=0, SI=0, RL=0, RS=0,  CI=0,PI=0,CL=00
                    7 Reset=0, Curr=IDLE_OR_LOAD, Next=IDLE_OR_LOAD, LI=1, SI=0, RL=1, RS=0,  CI=3,PI=3,CL=03
@@ -8,9 +8,18 @@ Compiler version J-2014.12-SP3-1_Full64; Runtime version J-2014.12-SP3-1_Full64;
                   11 Reset=0, Curr=IDLE_OR_LOAD, Next=IDLE_OR_LOAD, LI=1, SI=0, RL=1, RS=1,  CI=1,PI=1,CL=05
                   13 Reset=0, Curr=IDLE_OR_LOAD, Next=SEND, LI=0, SI=1, RL=0, RS=1,  CI=0,PI=0,CL=00
                   15 Reset=0, Curr=SEND, Next=SEND, LI=0, SI=0, RL=0, RS=0,  CI=0,PI=0,CL=00
-$finish called from file "Task2_test.sv", line 48.
-$finish at simulation time                 1021
+                  29 Reset=0, Curr=SEND, Next=IDLE_OR_LOAD, LI=1, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=00
+                  31 Reset=0, Curr=IDLE_OR_LOAD, Next=IDLE_OR_LOAD, LI=1, SI=0, RL=1, RS=0,  CI=3,PI=3,CL=0f
+                  33 Reset=0, Curr=IDLE_OR_LOAD, Next=IDLE_OR_LOAD, LI=1, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=10
+                  35 Reset=0, Curr=IDLE_OR_LOAD, Next=IDLE_OR_LOAD, LI=1, SI=0, RL=1, RS=0,  CI=1,PI=1,CL=11
+                  37 Reset=0, Curr=IDLE_OR_LOAD, Next=IDLE_OR_LOAD, LI=1, SI=0, RL=1, RS=0,  CI=2,PI=2,CL=12
+                  39 Reset=0, Curr=IDLE_OR_LOAD, Next=IDLE_OR_LOAD, LI=1, SI=0, RL=1, RS=0,  CI=3,PI=3,CL=13
+                  41 Reset=0, Curr=IDLE_OR_LOAD, Next=IDLE_OR_LOAD, LI=1, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=14
+                  43 Reset=0, Curr=IDLE_OR_LOAD, Next=IDLE_OR_LOAD, LI=1, SI=0, RL=1, RS=0,  CI=1,PI=1,CL=15
+                  45 Reset=0, Curr=IDLE_OR_LOAD, Next=IDLE_OR_LOAD, LI=0, SI=0, RL=0, RS=0,  CI=0,PI=0,CL=00
+$finish called from file "Task2_test.sv", line 65.
+$finish at simulation time                 1047
            V C S   S i m u l a t i o n   R e p o r t 
-Time: 1021
+Time: 1047
 CPU Time:      0.200 seconds;       Data structure size:   0.0Mb
-Fri Dec  4 01:36:15 2020
+Fri Dec  4 01:44:05 2020
