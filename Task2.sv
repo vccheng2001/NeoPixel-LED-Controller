@@ -11,7 +11,7 @@ module Task2
    output logic [1:0] color_index,
    output logic [7:0] color_level,
 
-   output logic load_it, 
+   output logic load_color, 
    output logic send_it);
 
 
@@ -44,13 +44,13 @@ module Task2
     pixel_en = 1; pixel_clear = 0; // always vary values
     hue_en = 1; hue_clear = 0;     // always vary hues 
     pixel_index = 3'd0; color_index = 2'b00; color_level = 8'h00;
-    load_it = 0; send_it = 0; 
+    load_color = 0; send_it = 0; 
     case (currstate)
       IDLE_OR_LOAD: begin
         if (!ready_to_load && !ready_to_send) nextstate = IDLE_OR_LOAD; 
         else if (ready_to_load) begin 
           nextstate = IDLE_OR_LOAD;
-          load_it = 1; 
+          load_color = 1; 
           pixel_index = pixel_to_load;
           color_index = pixel_to_load; // red 
           color_level = hue; // full brightness
@@ -61,12 +61,12 @@ module Task2
         end 
       end
       SEND: begin 
-        load_it = 0; send_it = 0;
+        load_color = 0; send_it = 0;
         if (!ready_to_load && !ready_to_send) begin 
           nextstate = SEND;
         end 
         else if (ready_to_load) begin 
-          load_it = 1; 
+          load_color = 1; 
           nextstate = IDLE_OR_LOAD;
         end 
       end
