@@ -2,7 +2,7 @@
 
 module ChipInterface
   (input  logic CLOCK_50,
-   output logic B13); 
+   output logic [31:0] GPIO_0); 
  
    logic reset;
 
@@ -12,9 +12,10 @@ module ChipInterface
 
    logic load_color, send_it;        
    logic neo_data, ready_to_load, ready_to_send;
-  //  input logic neo_data,
-  //  input logic ready_to_load,
-  //  input logic ready_to_send,
+
+   assign GPIO_0[1] = neo_data;
+   
+   NeoPixelStrandController (.clock(CLOCK_50), .*);
    Task2 (.clock(CLOCK_50), .*);
    
 endmodule: ChipInterface 
