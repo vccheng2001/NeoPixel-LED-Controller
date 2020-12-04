@@ -79,12 +79,15 @@ module NeoPixelStrandController
   always_comb begin
     wait50_en = 0; wait50_clear = 1;
     cycle_en = 0; cycle_clear = 1;
+    send_en = 0; send_clear = 1;
+    ready_to_load = 0; ready_to_send = 0;
+    // done_low = 0; done_high = 0;
     case (currstate)
 
       // Upon reset, ready to load/send. 
       // No bits have been sent yet (send_clear=1), RGB all set to 0
       RESET: begin
-
+        done_low = 0; done_high = 0;
         send_en = 0; send_clear = 1;
         ready_to_load = 1; ready_to_send = 1;
         G = 40'd0; R = 40'd0; B = 40'd0;

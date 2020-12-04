@@ -12,9 +12,9 @@ module ChipInterface
 
    logic load_color, send_it;        
    logic neo_data, ready_to_load, ready_to_send;
-
-   assign B13 = neo_data; 
-
-   NeoPixelStrandController led (.clock(CLOCK_50), .*);
+  //  input logic neo_data,
+  //  input logic ready_to_load,
+  //  input logic ready_to_send,
+   Task2 (.clock(CLOCK_50), .*);
    
 endmodule: ChipInterface 
