@@ -1,6 +1,6 @@
 `default_nettype none
 
-module ChipInterface
+module chipInterface
   (input  logic CLOCK_50,
    output logic [31:0] GPIO_0); 
  
@@ -18,4 +18,4 @@ module ChipInterface
    NeoPixelStrandController (.clock(CLOCK_50), .*);
    Task2 (.clock(CLOCK_50), .*);
    
-endmodule: ChipInterface 
+endmodule: chipInterface 
