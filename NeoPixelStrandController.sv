@@ -98,7 +98,8 @@ module NeoPixelStrandController
            case(color_index) 
               2'b00: R[pixel_index] = color_level; // Red
               2'b01: B[pixel_index] = color_level; // Blue
-              2'b10: G[pixel_index] = color_level; // Green 
+              2'b10: G[pixel_index] = color_level; // Green
+              default: begin end 
            endcase
         end
         // Send  
@@ -124,6 +125,7 @@ module NeoPixelStrandController
                 2'b00: R[pixel_index] = color_level; // Red
                 2'b01: B[pixel_index] = color_level; // Blue
                 2'b10: G[pixel_index] = color_level; // Green 
+                default: begin end 
             endcase
           end
         end
@@ -259,6 +261,7 @@ module NeoPixelStrandController
                 2'b00: R[pixel_index] = color_level; // Red
                 2'b01: B[pixel_index] = color_level; // Blue
                 2'b10: G[pixel_index] = color_level; // Green 
+                default: begin end 
             endcase
           end
           // If waited 50 microseconds 
