@@ -172,6 +172,7 @@ module NeoPixelStrandController
         
       // One-bit: 35 cycles high, 30 cycles low 
       SEND1: begin 
+        ready_to_load = 0; ready_to_send = 0;
         send_en = 0; send_clear = 0; 
 
         // Sending high bits 
@@ -212,6 +213,7 @@ module NeoPixelStrandController
       
       // Zero-bit: 18 cycles high, 40 cycles low 
       SEND0: begin 
+        ready_to_load = 0; ready_to_send = 0;
         send_en = 0; send_clear = 0;
 
         // Sending high bits 
@@ -252,6 +254,13 @@ module NeoPixelStrandController
       WAIT: begin 
           done_low = 0; done_high = 0;
           send_en = 0; send_clear = 1;
+          if (load_color) begin 
+            case(color_index) 
+                2'b00: R[pixel_index] = color_level; // Red
+                2'b01: B[pixel_index] = color_level; // Blue
+                2'b10: G[pixel_index] = color_level; // Green 
+            endcase
+          end
           // If waited 50 microseconds 
           if (wait50_count == 12'd2500) begin 
               nextstate = RESET;
