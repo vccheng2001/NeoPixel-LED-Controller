@@ -21,8 +21,8 @@ module Task2_test();
 
   // Simulates test
   initial begin
-    $monitor($time," Reset=%d, Curr=%s, Next=%s, LI=%d, SI=%d, RL=%b, RS=%b,  CI=%d,PI=%d,CL=%h",
-    reset, dut.currstate.name, dut.nextstate.name,load_color, send_it, ready_to_load, ready_to_send, color_index, pixel_index, color_level);
+    $monitor($time," Reset=%d, Curr=%s, Next=%s, LI=%d, SI=%d, RL=%b, RS=%b,  CI=%d,PI=%d,CL=%h, DoneLoad=%b",
+    reset, dut.currstate.name, dut.nextstate.name,load_color, send_it, ready_to_load, ready_to_send, color_index, pixel_index, color_level, dut.done_load);
  
     reset = 1; 
     // Init to 0
@@ -35,33 +35,19 @@ module Task2_test();
     @(posedge clock);
     ready_to_load <= 1; ready_to_send <= 0; // load
     @(posedge clock);
-    ready_to_load <= 1; ready_to_send <= 1; // load 
-    @(posedge clock);
-    ready_to_load <= 1;                     // load
-    @(posedge clock);
-    ready_to_load <= 0; ready_to_send <= 1; // send 
-    @(posedge clock);
-    ready_to_send <= 0;
-    @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
-    ready_to_load <= 1; ready_to_send <= 0; // send 
-    @(posedge clock);
-    ready_to_load <= 1;
-    @(posedge clock);
-    ready_to_load <= 1;
-    @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
+    wait(dut.done_load);
     ready_to_load <= 0; ready_to_send <= 0;
     @(posedge clock);
+    @(posedge clock);
+    @(posedge clock);
+    ready_to_send <= 1; ready_to_load <= 0;
+    @(posedge clock);
+    @(posedge clock); 
+    ready_to_load <= 1; ready_to_send <= 0;
+    @(posedge clock);
+    wait(dut.done_load);
+   ready_to_load <= 0; ready_to_send <= 0;
+    @(posedge clock); 
     #1000 $finish;            
   end
 

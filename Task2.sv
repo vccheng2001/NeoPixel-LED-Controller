@@ -29,45 +29,87 @@ module Task2
   counter #(2) pixelCounter (.en(pixel_en), .clear(pixel_clear), .q(pixel_to_load),
                               .d(2'd0), .clock(clock), .reset(reset));
 
-   
+  localparam MAX_NUM_LOADS = 4'd15;
+  // Number of loads
+  logic [3:0] load_count;
+  logic load_count_en, load_count_clear;
+
+  counter #(4) loadCouter (.en(load_count_en), .clear(load_count_clear), .q(load_count),
+                              .d(4'd0), .clock(clock), .reset(reset));
+
+  logic done_load;
 
   // States
-  enum logic [1:0] {IDLE_OR_LOAD, SEND} currstate, nextstate;
+  enum logic [1:0] {IDLE, LOAD, SEND} currstate, nextstate;
 
   // Next state logic 
   always_ff @(posedge clock, posedge reset)
-    if (reset) currstate <= IDLE_OR_LOAD;
+    if (reset) currstate <= IDLE;
     else currstate <= nextstate;   
 
   // FSM logic for states/output values
   always_comb begin
+    done_load = 0;
     pixel_en = 1; pixel_clear = 0; // always vary values
     hue_en = 1; hue_clear = 0;     // always vary hues 
     pixel_index = 3'd0; color_index = 2'b00; color_level = 8'h00;
     load_color = 0; send_it = 0; 
+    load_count_en = 0; load_count_clear = 1;
     case (currstate)
-      IDLE_OR_LOAD: begin
-        if (!ready_to_load && !ready_to_send) nextstate = IDLE_OR_LOAD; 
+      IDLE: begin
+        if (done_load) done_load = 1; 
+
+        if (!ready_to_load && !ready_to_send) nextstate = IDLE;
+        // if already done loading up to 15 times, 
         else if (ready_to_load) begin 
-          nextstate = IDLE_OR_LOAD;
+          if (done_load) begin 
+            nextstate = IDLE;
+          end 
+          else begin 
+            nextstate = LOAD;
+            // tell neopixel to use these values 
+            load_color = 1; 
+            pixel_index = pixel_to_load;
+            color_index = pixel_to_load; // red 
+            color_level = hue; // full brightness
+          end 
+        end
+        else if (ready_to_send) begin 
+          send_it = 1; 
+          nextstate = SEND;
+          done_load = 0;
+        end 
+      end
+
+      LOAD: begin
+
+        if (!ready_to_load || load_count == MAX_NUM_LOADS) begin 
+          done_load = 1;
+          nextstate = IDLE;
+          load_count_clear = 1; load_count_en = 0;
+          load_color = 0;
+        end 
+        // keep loading for <MAX_NUM_LOADS> times 
+        else if (ready_to_load) begin 
+          done_load = 0; 
+          load_count_en = 1; load_count_clear = 0; 
+          nextstate = LOAD;
           load_color = 1; 
           pixel_index = pixel_to_load;
           color_index = pixel_to_load; // red 
           color_level = hue; // full brightness
         end
-        else if (ready_to_send) begin 
-          send_it = 1; 
-          nextstate = SEND;
-        end 
       end
+
       SEND: begin 
+        done_load = 0;
         load_color = 0; send_it = 0;
         if (!ready_to_load && !ready_to_send) begin 
           nextstate = SEND;
         end 
         else if (ready_to_load) begin 
           load_color = 1; 
-          nextstate = IDLE_OR_LOAD;
+          nextstate = IDLE;
         end 
       end
     endcase
