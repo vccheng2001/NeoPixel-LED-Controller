@@ -110,6 +110,7 @@ module NeoPixelStrandController
 
       // Available to load 
       LOAD: begin
+        done_low = 0; done_high = 0;
         send_en = 0; send_clear = 1;
         ready_to_load = 1; ready_to_send = 1;
 
@@ -175,6 +176,7 @@ module NeoPixelStrandController
 
         // Sending high bits 
         if (!done_high & !done_low) begin
+          done_low = 0;
           nextstate = SEND1;  
           // Finished 35 high 
           if (cycle_count == BIT_1_HIGH) begin 
@@ -189,6 +191,7 @@ module NeoPixelStrandController
 
         // Finished 35 high
         else if (done_high & !done_low) begin 
+          done_high = 1;
           // Finished 30 low
           if (cycle_count == (BIT_1_HIGH + BIT_1_LOW - 1)) begin  // 35 + 30 - 1
             nextstate = SEND;
@@ -213,6 +216,7 @@ module NeoPixelStrandController
 
         // Sending high bits 
         if (!done_high & !done_low) begin
+          done_low = 0;
           nextstate = SEND0;  
           // Finished 18 high 
           if (cycle_count == BIT_0_HIGH) begin 
@@ -227,6 +231,7 @@ module NeoPixelStrandController
 
         // Sending low bits 
         else if (done_high & !done_low) begin 
+          done_high = 1;
           // Finished 40 low
           if (cycle_count == (BIT_0_HIGH + BIT_0_LOW - 1)) begin  // 18 + 40 - 1
             nextstate = SEND;
@@ -245,6 +250,7 @@ module NeoPixelStrandController
       // Must wait 50 microseconds before SEND another display packet 
 
       WAIT: begin 
+          done_low = 0; done_high = 0;
           send_en = 0; send_clear = 1;
           // If waited 50 microseconds 
           if (wait50_count == 12'd2500) begin 
