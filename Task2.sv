@@ -8,7 +8,7 @@ module Task2
    input logic ready_to_send,
    
    output logic [2:0] pixel_index,      
-   input logic [1:0] color_index,
+   output logic [1:0] color_index,
    output logic [7:0] color_level,
 
    output logic load_color, 
@@ -50,14 +50,14 @@ module Task2
   /*                  Control number of loads                       */
   /******************************************************************/
  
- localparam MAX_NUM_LOADS = 5'd31;
+ localparam MAX_NUM_LOADS = 8'd255;
 
   // Number of loads
-  logic [4:0] load_count;
+  logic [7:0] load_count;
   logic load_count_en, load_count_clear;
 
-  counter #(5) loadCounter (.en(load_count_en), .clear(load_count_clear), .q(load_count),
-                              .d(5'd0), .clock(clock), .reset(reset));
+  counter #(8) loadCounter (.en(load_count_en), .clear(load_count_clear), .q(load_count),
+                              .d(8'd0), .clock(clock), .reset(reset));
 
 
   /******************************************************************/
@@ -75,7 +75,7 @@ module Task2
 
     pixel_en = 1; pixel_clear = 0; // always vary values
     hue_en = 1; hue_clear = 0;     // always vary hues 
-    pixel_index = 3'd0; color_level = 8'h00;
+    pixel_index = 3'd0; color_level = 8'h00; color_index = 2'b00;
 
     load_color = 0; send_it = 0; 
     load_count_en = 0; load_count_clear = 1;
@@ -102,6 +102,7 @@ module Task2
           load_count_en = 1; load_count_clear = 0;
 
           pixel_index = pixel_to_load;
+          color_index = pixel_to_load;
           color_level = hue_to_load;   
 
         end else if (ready_to_send) begin 
@@ -133,6 +134,7 @@ module Task2
           load_count_en = 1; load_count_clear = 0; 
 
           pixel_index = pixel_to_load;
+          color_index = pixel_to_load;
           color_level = hue_to_load; 
         end
       end

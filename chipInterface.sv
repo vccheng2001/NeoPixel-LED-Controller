@@ -23,7 +23,7 @@ module chipInterface
    assign reset = ~syncedKEY0; // reset when KEY2 pressed 
    assign GPIO_0[1] = neo_data;
 
-   assign color_index = {syncedSW1, syncedSW0};
+  //  assign color_index = {syncedSW1, syncedSW0};
    
    NeoPixelStrandController np (.*);
    Task2 t2 (.*);

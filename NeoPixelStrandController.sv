@@ -88,32 +88,6 @@ module NeoPixelStrandController
   counter #(12) wait50 (.en(wait50_en), .clear(wait50_clear), .q(wait50_count),
                               .d(12'd0), .clock(clock), .reset(reset));
 
-
-
-/******************************************************************/
-/*                       Task to Load Color                        */
-/*******************************************************************/ 
-
-// task do_color;
-//   begin 
-//   case (color_index)
-//     2'b00: begin // red
-//       R_en[pixel_index] = 1; R_clear[pixel_index] = 0;
-//       R_in[pixel_index] = color_level;
-//     end
-//     2'b01: begin // blue
-//       B_en[pixel_index] = 1; B_clear[pixel_index] = 0;
-//       B_in[pixel_index] = color_level;
-//     end
-//     2'b10: begin // green
-//       G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
-//       G_in[pixel_index] = color_level;
-//     end 
-//     default: begin end 
-//     endcase
-//   end
-// endtask
-
 /******************************************************************/
 /*                  Producer FSM: Neo Controller                  */
 /*******************************************************************/

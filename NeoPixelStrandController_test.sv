@@ -60,8 +60,8 @@ module NeoPixelStrandController_test;
     // reset, dut.currstate.name, dut.nextstate.name, load_color, send_it, ready_to_load, ready_to_send, dut.G, dut.R, dut.B, color_index, pixel_index, color_level, dut.send_count, dut.wait50_count);
     // $monitor($time," Reset=%d, Curr=%s, Next=%s, LI=%d, SI=%d, DP[sc]=%h, NeoData=%b, SCnt=%d, W50=%d",
     // reset, dut.currstate.name, dut.nextstate.name, load_color, send_it, dut.display_packet, dut.neo_data, dut.send_count, dut.wait50_count);
-    $monitor($time," Reset=%d, Curr=%s, Next=%s, LI=%d, SI=%d, RL=%b, RS=%b,NeoData=%b, SCnt=%d, CC=%d, W50=%d",
-    reset, dut.currstate.name, dut.nextstate.name,load_color, send_it, ready_to_load, ready_to_send,dut.neo_data, dut.send_count, dut.cycle_count,dut.wait50_count);
+    $monitor($time," Reset=%d, Curr=%s, Next=%s, LI=%d, SI=%d, RL=%b, RS=%b,NeoData=%b,DP=%h, SCnt=%d, CC=%d, W50=%d",
+    reset, dut.currstate.name, dut.nextstate.name,load_color, send_it, ready_to_load, ready_to_send,dut.neo_data,dut.display_packet, dut.send_count, dut.cycle_count,dut.wait50_count);
  
     reset = 1; 
     load_color = 0; send_it = 0;
@@ -72,7 +72,7 @@ module NeoPixelStrandController_test;
     @(posedge clock);
 
     // Load color 
-    repeat(20) begin 
+    repeat(50) begin 
       load_color <= 1;
       // Randomize fields to load color 
       lc = new();
@@ -90,9 +90,32 @@ module NeoPixelStrandController_test;
     // De-assert send 
     send_it <= 0; 
     @(posedge clock);
-
+    wait(dut.send_count == 120);
+    $display("at 120");
+    wait(dut.wait50_count == 2500);
+    $display("waited 2500");
+    // Load color 
+    repeat(50) begin 
+      load_color <= 1;
+      // Randomize fields to load color 
+      lc = new();
+      lc.randomize();
+      pixel_index <= lc.pixel_index;
+      color_index <= lc.color_index;
+      color_level <= lc.color_level;
+      lc.display_randomized_colors();
+      @(posedge clock);
+    end
+    
+    // Send 
+    load_color <= 0; send_it <= 1;
+    @(posedge clock);
+    // De-assert send 
+    send_it <= 0; 
+    @(posedge clock);
+     
     $display("LED Command=%h", dut.LED_Command);
-    #100000 $finish;            
+    #10000000 $finish;            
   end
 
 
