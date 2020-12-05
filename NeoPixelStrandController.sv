@@ -93,7 +93,9 @@ module NeoPixelStrandController
   // done_low when done waiting for cycles where asserted low 
   logic done_high, done_low; 
 
-
+/******************************************************************/
+/*                       Task to Load Color
+/*******************************************************************/ 
 
 task do_color;
   begin 
@@ -119,11 +121,11 @@ endtask
 /*******************************************************************/
 
   // States
-  enum logic [2:0] {RESET, LOAD, SEND, SEND1, SEND0, WAIT} currstate, nextstate;
+  enum logic [2:0] {IDLE_OR_LOAD, SEND, SEND1, SEND0, WAIT} currstate, nextstate;
 
   // Next state logic 
   always_ff @(posedge clock, posedge reset)
-    if (reset) currstate <= RESET; 
+    if (reset) currstate <= IDLE_OR_LOAD; 
     else currstate <= nextstate;   
 
   // FSM logic for states/output values
@@ -144,59 +146,30 @@ endtask
 
     case (currstate)
 
-      // Upon reset, ready to load/send. 
-      // No bits have been sent yet (send_clear=1), RGB all set to 0
-      RESET: begin
+      IDLE_OR_LOAD: begin
         done_low = 0; done_high = 0;
+        // default: can load and send 
         ready_to_load = 1; ready_to_send = 1;
 
-        // Load a specified color value into R, G, or B for one LED 
-        if (load_color) begin 
-           nextstate = LOAD;
+        if (load_color) begin       // load color
+           nextstate = IDLE_OR_LOAD;
            do_color();
-        end
-        // Send  
-        else if (send_it) nextstate = SEND;
-        // Stay in IDLE
-        else nextstate = RESET;
-      end
-
-
-      // Available to load 
-      LOAD: begin
-        done_low = 0; done_high = 0;
-        send_en = 0; send_clear = 1;
-        ready_to_load = 1; ready_to_send = 1;
-
-        // Send 
-        if (send_it) nextstate = SEND;
-        // Load 
-        else begin
-          nextstate = LOAD;
-          if (load_color) begin 
-            do_color();
-          end
-        end
+        end else if (send_it) begin // start sending, can't send anymore 
+           nextstate = SEND;
+           ready_to_send = 0;
+        end else nextstate = IDLE_OR_LOAD; // do nothing 
       end
 
       // Send display packet of 120 bits 
       SEND: begin 
-        // Every time send a new bit, reset done_high and done_low to 0
         done_high = 0; done_low = 0;
 
         // Iterated through all 120 pixels in display packet 
         if (send_count == NUM_BITS) begin 
-            neo_data = 1'bx;  // Don't send any more neo_data
             nextstate = WAIT; // wait 50 microseconds 
-            send_en = 0; send_clear = 1;  // clear 
-            ready_to_load = 1; ready_to_send = 0; // can load while waiting 
-            cycle_en = 0; cycle_clear = 1; // clear cycle counts 
-
-        end else begin
-
-            nextstate = SEND; 
-            send_en = 1; send_clear = 0;
-            // Deassert while sending 
+            ready_to_load = 1; ready_to_send = 0;
+        end else begin 
+            send_en = 1; send_clear = 0; 
             ready_to_load = 0; ready_to_send = 0; 
             
             // Send 1-bit
@@ -223,7 +196,7 @@ endtask
       // One-bit: 35 cycles high, 30 cycles low 
       SEND1: begin 
         ready_to_load = 0; ready_to_send = 0;
-        send_en = 0; send_clear = 0; 
+        send_en = 0; send_clear = 0; // maintain bit (out of 120) being sent 
 
         // Sending high bits 
         if (!done_high & !done_low) begin
@@ -309,7 +282,7 @@ endtask
           end
           // If waited 50 microseconds 
           if (wait50_count == 12'd2500) begin 
-              nextstate = RESET;
+              nextstate = IDLE_OR_LOAD;
               // Clear wait 
               wait50_en = 0; wait50_clear = 1;
               ready_to_load = 1; ready_to_send = 1;
