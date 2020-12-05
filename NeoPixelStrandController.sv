@@ -10,11 +10,10 @@ module NeoPixelStrandController
  input logic load_color, send_it,
  output logic neo_data, ready_to_load, ready_to_send);
 
- // Define color logic 
+/******************************************************************/
+/*                          Define RGB Color Logic 
+/*******************************************************************/
  logic [4:0][7:0] G, R, B;
- logic [4:0][23:0] LED_Command;
- logic [119:0] display_packet;
-
 
  // Register variables for RGB  
  logic [4:0] G_en, R_en, B_en;
@@ -31,6 +30,13 @@ module NeoPixelStrandController
  end
  endgenerate
 
+/******************************************************************/
+/*                        Display packet 
+/*******************************************************************/
+ logic [4:0][23:0] LED_Command;
+ logic [119:0] display_packet;
+
+
  // Assign LED Commands to create display packet
  genvar i; 
  generate
@@ -42,15 +48,18 @@ module NeoPixelStrandController
  assign display_packet = LED_Command;
 
 
-  // Counter for SEND 5 display commands
-  // 5 LEDs * 24 bits/command = 120 bits to send 
+/******************************************************************/
+/*   Send display packet: 5 LEDs * 40 bits/LED = 120 bits
+/*******************************************************************/
   logic [6:0] send_count;
   logic send_en, send_clear;
-
   counter #(7) send (.en(send_en), .clear(send_clear), .q(send_count),
                               .d(7'd0), .clock(clock), .reset(reset));
 
 
+/******************************************************************/
+/*            Count number of cycles when sending 1s/0s
+/*******************************************************************/
   // Count cycles 
   logic [6:0] cycle_count;
   logic cycle_en, cycle_clear;
@@ -59,27 +68,19 @@ module NeoPixelStrandController
                               .d(7'd0), .clock(clock), .reset(reset));
 
  // Number of cycles for sending 1-Bit
-//  localparam BIT_1_HIGH = 7'd35;
-//  localparam BIT_1_LOW  = 7'd30; 
-
-//  // Number of cycles for sending 0-Bit
-//  localparam BIT_0_HIGH  = 7'd18;
-//  localparam BIT_0_LOW  = 7'd40; 
-
-//  // Display packet length 
-//  localparam NUM_BITS = 7'd120;
- 
-
- // Number of cycles for sending 1-Bit
- localparam BIT_1_HIGH = 7'd3;
- localparam BIT_1_LOW  = 7'd4; 
+ localparam BIT_1_HIGH = 7'd35;
+ localparam BIT_1_LOW  = 7'd30; 
 
  // Number of cycles for sending 0-Bit
- localparam BIT_0_HIGH  = 7'd3;
- localparam BIT_0_LOW  = 7'd2; 
+ localparam BIT_0_HIGH  = 7'd18;
+ localparam BIT_0_LOW  = 7'd40; 
 
  // Display packet length 
- localparam NUM_BITS = 7'd11; 
+ localparam NUM_BITS = 7'd120;
+
+/******************************************************************/
+/*                              Wait 50 us Counters
+/*******************************************************************/ 
   // Wait 50 microseconds between each display packet
   logic [11:0] wait50_count;
   logic wait50_en, wait50_clear;
@@ -93,8 +94,9 @@ module NeoPixelStrandController
   logic done_high, done_low; 
 
 
-
-
+/******************************************************************/
+/*                  Producer FSM: Neo Controller
+/*******************************************************************/
 
   // States
   enum logic [2:0] {RESET, LOAD, SEND, SEND1, SEND0, WAIT} currstate, nextstate;
@@ -106,16 +108,19 @@ module NeoPixelStrandController
 
   // FSM logic for states/output values
   always_comb begin
-    wait50_en = 0; wait50_clear = 1;
-    cycle_en = 0; cycle_clear = 1;
-    send_en = 0; send_clear = 1;
-    ready_to_load = 0; ready_to_send = 0;
+    // default values 
+    neo_data = 1'b0;  // should be 1'bx?
 
-    // default 
+    wait50_en = 0; wait50_clear = 1;      // reset counters to 0
+    cycle_en = 0; cycle_clear = 1;   
+    send_en = 0; send_clear = 1;   
+  
+    ready_to_load = 0; ready_to_send = 0; // not ready to load/send 
+
+    // maintain rgb values if not clear/reset or en 
     R_en = 5'b00000; R_clear = 5'b00000; R_in = 40'd0;
     B_en = 5'b00000; B_clear = 5'b00000; B_in = 40'd0;
     G_en = 5'b00000; G_clear = 5'b00000; G_in = 40'd0;
-    neo_data = 1'b0;
 
     case (currstate)
 
@@ -123,7 +128,6 @@ module NeoPixelStrandController
       // No bits have been sent yet (send_clear=1), RGB all set to 0
       RESET: begin
         done_low = 0; done_high = 0;
-        send_en = 0; send_clear = 1;
         ready_to_load = 1; ready_to_send = 1;
 
         // Load a specified color value into R, G, or B for one LED 
