@@ -94,6 +94,26 @@ module NeoPixelStrandController
   logic done_high, done_low; 
 
 
+
+task do_color;
+  begin 
+  case (color_index)
+    2'b00: begin // red
+      R_en[pixel_index] = 1; R_clear[pixel_index] = 0;
+      R_in[pixel_index] = color_level;
+    end
+    2'b01: begin // blue
+      B_en[pixel_index] = 1; B_clear[pixel_index] = 0;
+      B_in[pixel_index] = color_level;
+    end
+    2'b10: begin // green
+      G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
+      G_in[pixel_index] = color_level;
+    end 
+    endcase
+  end
+endtask
+
 /******************************************************************/
 /*                  Producer FSM: Neo Controller
 /*******************************************************************/
@@ -133,20 +153,7 @@ module NeoPixelStrandController
         // Load a specified color value into R, G, or B for one LED 
         if (load_color) begin 
            nextstate = LOAD;
-           case (color_index)
-            2'b00: begin // red
-              R_en[pixel_index] = 1; R_clear[pixel_index] = 0;
-              R_in[pixel_index] = color_level;
-            end
-            2'b01: begin // blue
-              B_en[pixel_index] = 1; B_clear[pixel_index] = 0;
-              B_in[pixel_index] = color_level;
-            end
-            2'b10: begin // green
-              G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
-              G_in[pixel_index] = color_level;
-            end 
-           endcase
+           do_color();
         end
         // Send  
         else if (send_it) nextstate = SEND;
@@ -167,20 +174,7 @@ module NeoPixelStrandController
         else begin
           nextstate = LOAD;
           if (load_color) begin 
-          case (color_index)
-            2'b00: begin // red
-              R_en[pixel_index] = 1; R_clear[pixel_index] = 0;
-              R_in[pixel_index] = color_level;
-            end
-            2'b01: begin // blue
-              B_en[pixel_index] = 1; B_clear[pixel_index] = 0;
-              B_in[pixel_index] = color_level;
-            end
-            2'b10: begin // green
-              G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
-              G_in[pixel_index] = color_level;
-            end 
-           endcase
+            do_color();
           end
         end
       end
@@ -311,20 +305,7 @@ module NeoPixelStrandController
           done_low = 0; done_high = 0;
           send_en = 0; send_clear = 1;
           if (load_color) begin 
-           case (color_index)
-            2'b00: begin // red
-              R_en[pixel_index] = 1; R_clear[pixel_index] = 0;
-              R_in[pixel_index] = color_level;
-            end
-            2'b01: begin // blue
-              B_en[pixel_index] = 1; B_clear[pixel_index] = 0;
-              B_in[pixel_index] = color_level;
-            end
-            2'b10: begin // green
-              G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
-              G_in[pixel_index] = color_level;
-            end 
-           endcase
+           do_color();
           end
           // If waited 50 microseconds 
           if (wait50_count == 12'd2500) begin 
