@@ -109,6 +109,7 @@ task do_color;
       G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
       G_in[pixel_index] = color_level;
     end 
+    default: begin end 
     endcase
   end
 endtask
