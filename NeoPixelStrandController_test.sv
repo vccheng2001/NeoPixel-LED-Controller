@@ -100,24 +100,24 @@ module NeoPixelStrandController_test;
 /*                          ASSERTIONS                            */
 /******************************************************************/
 
-assert property (load_color_prop) else $error ("Color was not loaded correctly");
+// assert property (load_color_prop) else $error ("Color was not loaded correctly");
 
-/******************************************************************/
-/*                         PROPERTIES                             */
-/******************************************************************/
+// /******************************************************************/
+// /*                         PROPERTIES                             */
+// /******************************************************************/
 
-// Make sure color is loaded correctly
-property load_color_prop;
-    logic [2:0] pi;       // Fields for load_color 
-    logic [1:0] ci;
-    logic [7:0] cl;
+// // Make sure color is loaded correctly
+// property load_color_prop;
+//     logic [2:0] pi;       // Fields for load_color 
+//     logic [1:0] ci;
+//     logic [7:0] cl;
 
-    @(posedge clock) (load_color, pi = lc.pixel_index, ci = lc.color_index, cl = lc.color_level)
-    |=> (R[pi] == cl | B[pi] == cl | G[pi] == cl);
-    // else if (ci == 2'b01)|=> B[pi] == cl;
-    // else if (cl == 2'b10) |=> G[pi] == cl;
+//     @(posedge clock) (load_color, pi = lc.pixel_index, ci = lc.color_index, cl = lc.color_level)
+//     |=> (R[pi] == cl | B[pi] == cl | G[pi] == cl);
+//     // else if (ci == 2'b01)|=> B[pi] == cl;
+//     // else if (cl == 2'b10) |=> G[pi] == cl;
 
-endproperty: load_color_prop
+// endproperty: load_color_prop
 
 
 endmodule: NeoPixelStrandController_test

@@ -14,3 +14,16 @@ module counter
   else if (clear) q <= 0;
 
 endmodule: counter
+
+module register
+  #(parameter WIDTH=8)
+  (input logic [WIDTH-1:0] d,
+    input logic clock,reset,
+    input logic en, clear,
+    output logic [WIDTH-1:0] q);
+
+  always_ff @(posedge clock, posedge reset) 
+    if (reset) q <= 0;
+    else if (clear) q <= 0;      
+    else if (en) q <= d;
+endmodule: register

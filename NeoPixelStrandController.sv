@@ -15,6 +15,22 @@ module NeoPixelStrandController
  logic [4:0][23:0] LED_Command;
  logic [119:0] display_packet;
 
+
+ // Register variables for RGB  
+ logic [4:0] G_en, R_en, B_en;
+ logic [4:0] G_clear, R_clear, B_clear;
+ logic [4:0][7:0] G_in, R_in, B_in;
+
+ // Registers for storing R/G/B
+ genvar j; 
+ generate
+ for (j = 0; j < 5; j++) begin: rgb
+    register #(8) green (.q(G[j]), .d(G_in[j]), .en(G_en[j]), .clear(G_clear[j]), .clock(clock), .reset(reset));
+    register #(8) red (.q(R[j]), .d(R_in[j]), .en(R_en[j]), .clear(R_clear[j]), .clock(clock), .reset(reset));
+    register #(8) blue (.q(B[j]), .d(B_in[j]), .en(B_en[j]), .clear(B_clear[j]), .clock(clock), .reset(reset));
+ end
+ endgenerate
+
  // Assign LED Commands to create display packet
  genvar i; 
  generate
@@ -43,17 +59,27 @@ module NeoPixelStrandController
                               .d(7'd0), .clock(clock), .reset(reset));
 
  // Number of cycles for sending 1-Bit
- localparam BIT_1_HIGH = 7'd35;
- localparam BIT_1_LOW  = 7'd30; 
+//  localparam BIT_1_HIGH = 7'd35;
+//  localparam BIT_1_LOW  = 7'd30; 
 
- // Number of cycles for sending 0-Bit
- localparam BIT_0_HIGH  = 7'd18;
- localparam BIT_0_LOW  = 7'd40; 
+//  // Number of cycles for sending 0-Bit
+//  localparam BIT_0_HIGH  = 7'd18;
+//  localparam BIT_0_LOW  = 7'd40; 
 
- // Display packet length 
- localparam NUM_BITS = 7'd120;
+//  // Display packet length 
+//  localparam NUM_BITS = 7'd120;
  
 
+ // Number of cycles for sending 1-Bit
+ localparam BIT_1_HIGH = 7'd3;
+ localparam BIT_1_LOW  = 7'd4; 
+
+ // Number of cycles for sending 0-Bit
+ localparam BIT_0_HIGH  = 7'd3;
+ localparam BIT_0_LOW  = 7'd2; 
+
+ // Display packet length 
+ localparam NUM_BITS = 7'd11; 
   // Wait 50 microseconds between each display packet
   logic [11:0] wait50_count;
   logic wait50_en, wait50_clear;
@@ -62,10 +88,13 @@ module NeoPixelStrandController
                               .d(12'd0), .clock(clock), .reset(reset));
 
 
-
   // done_high when done waiting for cycles where asserted high 
   // done_low when done waiting for cycles where asserted low 
   logic done_high, done_low; 
+
+
+
+
 
   // States
   enum logic [2:0] {RESET, LOAD, SEND, SEND1, SEND0, WAIT} currstate, nextstate;
@@ -81,7 +110,13 @@ module NeoPixelStrandController
     cycle_en = 0; cycle_clear = 1;
     send_en = 0; send_clear = 1;
     ready_to_load = 0; ready_to_send = 0;
-    // done_low = 0; done_high = 0;
+
+    // default 
+    R_en = 5'b00000; R_clear = 5'b00000; R_in = 40'd0;
+    B_en = 5'b00000; B_clear = 5'b00000; B_in = 40'd0;
+    G_en = 5'b00000; G_clear = 5'b00000; G_in = 40'd0;
+    neo_data = 1'b0;
+
     case (currstate)
 
       // Upon reset, ready to load/send. 
@@ -90,16 +125,23 @@ module NeoPixelStrandController
         done_low = 0; done_high = 0;
         send_en = 0; send_clear = 1;
         ready_to_load = 1; ready_to_send = 1;
-        G = 40'd0; R = 40'd0; B = 40'd0;
 
         // Load a specified color value into R, G, or B for one LED 
         if (load_color) begin 
            nextstate = LOAD;
-           case(color_index) 
-              2'b00: R[pixel_index] = color_level; // Red
-              2'b01: B[pixel_index] = color_level; // Blue
-              2'b10: G[pixel_index] = color_level; // Green
-              default: begin end 
+           case (color_index)
+            2'b00: begin // red
+              R_en[pixel_index] = 1; R_clear[pixel_index] = 0;
+              R_in[pixel_index] = color_level;
+            end
+            2'b01: begin // blue
+              B_en[pixel_index] = 1; B_clear[pixel_index] = 0;
+              B_in[pixel_index] = color_level;
+            end
+            2'b10: begin // green
+              G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
+              G_in[pixel_index] = color_level;
+            end 
            endcase
         end
         // Send  
@@ -121,12 +163,20 @@ module NeoPixelStrandController
         else begin
           nextstate = LOAD;
           if (load_color) begin 
-            case(color_index) 
-                2'b00: R[pixel_index] = color_level; // Red
-                2'b01: B[pixel_index] = color_level; // Blue
-                2'b10: G[pixel_index] = color_level; // Green 
-                default: begin end 
-            endcase
+          case (color_index)
+            2'b00: begin // red
+              R_en[pixel_index] = 1; R_clear[pixel_index] = 0;
+              R_in[pixel_index] = color_level;
+            end
+            2'b01: begin // blue
+              B_en[pixel_index] = 1; B_clear[pixel_index] = 0;
+              B_in[pixel_index] = color_level;
+            end
+            2'b10: begin // green
+              G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
+              G_in[pixel_index] = color_level;
+            end 
+           endcase
           end
         end
       end
@@ -257,12 +307,20 @@ module NeoPixelStrandController
           done_low = 0; done_high = 0;
           send_en = 0; send_clear = 1;
           if (load_color) begin 
-            case(color_index) 
-                2'b00: R[pixel_index] = color_level; // Red
-                2'b01: B[pixel_index] = color_level; // Blue
-                2'b10: G[pixel_index] = color_level; // Green 
-                default: begin end 
-            endcase
+           case (color_index)
+            2'b00: begin // red
+              R_en[pixel_index] = 1; R_clear[pixel_index] = 0;
+              R_in[pixel_index] = color_level;
+            end
+            2'b01: begin // blue
+              B_en[pixel_index] = 1; B_clear[pixel_index] = 0;
+              B_in[pixel_index] = color_level;
+            end
+            2'b10: begin // green
+              G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
+              G_in[pixel_index] = color_level;
+            end 
+           endcase
           end
           // If waited 50 microseconds 
           if (wait50_count == 12'd2500) begin 
