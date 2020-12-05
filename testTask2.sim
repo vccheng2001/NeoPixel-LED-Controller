@@ -1,8 +1,9 @@
 Chronologic VCS simulator copyright 1991-2014
 Contains Synopsys proprietary information.
-Compiler version J-2014.12-SP3-1_Full64; Runtime version J-2014.12-SP3-1_Full64;  Dec  4 02:19 2020
-                   0 Reset=1, Curr=IDLE, Next=, LI=0, SI=0, RL=x, RS=x,  CI=0,PI=0,CL=00, DoneLoad=0
-                   1 Reset=0, Curr=IDLE, Next=IDLE, LI=0, SI=0, RL=0, RS=0,  CI=0,PI=0,CL=00, DoneLoad=0
+Compiler version J-2014.12-SP3-1_Full64; Runtime version J-2014.12-SP3-1_Full64;  Dec  5 01:48 2020
+                   0 Reset=1, Curr=RESET, Next=IDLE, LI=0, SI=0, RL=x, RS=x,  CI=0,PI=0,CL=00, DoneLoad=0
+                   1 Reset=0, Curr=RESET, Next=IDLE, LI=0, SI=0, RL=0, RS=0,  CI=0,PI=0,CL=00, DoneLoad=0
+                   3 Reset=0, Curr=IDLE, Next=IDLE, LI=0, SI=0, RL=0, RS=0,  CI=0,PI=0,CL=00, DoneLoad=0
                    7 Reset=0, Curr=IDLE, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=3,PI=3,CL=03, DoneLoad=0
                    9 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=04, DoneLoad=0
                   11 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=1,PI=1,CL=05, DoneLoad=0
@@ -18,19 +19,12 @@ Compiler version J-2014.12-SP3-1_Full64; Runtime version J-2014.12-SP3-1_Full64;
                   31 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=3,PI=3,CL=0f, DoneLoad=0
                   33 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=10, DoneLoad=0
                   35 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=1,PI=1,CL=11, DoneLoad=0
-                  37 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=2,PI=2,CL=12, DoneLoad=0
-                  39 Reset=0, Curr=LOAD, Next=IDLE, LI=0, SI=0, RL=0, RS=0,  CI=0,PI=0,CL=00, DoneLoad=1
-                  41 Reset=0, Curr=IDLE, Next=IDLE, LI=0, SI=0, RL=0, RS=0,  CI=0,PI=0,CL=00, DoneLoad=0
-                  45 Reset=0, Curr=IDLE, Next=SEND, LI=0, SI=1, RL=0, RS=1,  CI=0,PI=0,CL=00, DoneLoad=0
-                  47 Reset=0, Curr=SEND, Next=SEND, LI=0, SI=0, RL=0, RS=1,  CI=0,PI=0,CL=00, DoneLoad=0
-                  49 Reset=0, Curr=SEND, Next=IDLE, LI=1, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=00, DoneLoad=0
-                  51 Reset=0, Curr=IDLE, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=1,PI=1,CL=19, DoneLoad=0
-                  53 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=2,PI=2,CL=1a, DoneLoad=0
-                  55 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=3,PI=3,CL=1b, DoneLoad=0
-                  57 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=1c, DoneLoad=0
-                  59 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=1,PI=1,CL=1d, DoneLoad=0
-                  61 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=2,PI=2,CL=1e, DoneLoad=0
-                  63 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=3,PI=3,CL=1f, DoneLoad=0
+                  37 Reset=0, Curr=LOAD, Next=IDLE, LI=0, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=00, DoneLoad=0
+                  39 Reset=0, Curr=IDLE, Next=IDLE, LI=0, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=00, DoneLoad=1
+                  45 Reset=0, Curr=IDLE, Next=SEND, LI=0, SI=1, RL=0, RS=1,  CI=0,PI=0,CL=00, DoneLoad=1
+                  47 Reset=0, Curr=SEND, Next=SEND, LI=0, SI=0, RL=0, RS=0,  CI=0,PI=0,CL=00, DoneLoad=0
+                  61 Reset=0, Curr=SEND, Next=IDLE, LI=0, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=00, DoneLoad=0
+                  63 Reset=0, Curr=IDLE, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=3,PI=3,CL=1f, DoneLoad=0
                   65 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=00, DoneLoad=0
                   67 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=1,PI=1,CL=01, DoneLoad=0
                   69 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=2,PI=2,CL=02, DoneLoad=0
@@ -40,11 +34,18 @@ Compiler version J-2014.12-SP3-1_Full64; Runtime version J-2014.12-SP3-1_Full64;
                   77 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=2,PI=2,CL=06, DoneLoad=0
                   79 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=3,PI=3,CL=07, DoneLoad=0
                   81 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=08, DoneLoad=0
-                  83 Reset=0, Curr=LOAD, Next=IDLE, LI=0, SI=0, RL=0, RS=0,  CI=0,PI=0,CL=00, DoneLoad=1
-                  85 Reset=0, Curr=IDLE, Next=IDLE, LI=0, SI=0, RL=0, RS=0,  CI=0,PI=0,CL=00, DoneLoad=0
-$finish called from file "Task2_test.sv", line 51.
-$finish at simulation time                 1085
+                  83 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=1,PI=1,CL=09, DoneLoad=0
+                  85 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=2,PI=2,CL=0a, DoneLoad=0
+                  87 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=3,PI=3,CL=0b, DoneLoad=0
+                  89 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=0c, DoneLoad=0
+                  91 Reset=0, Curr=LOAD, Next=LOAD, LI=1, SI=0, RL=1, RS=0,  CI=1,PI=1,CL=0d, DoneLoad=0
+                  93 Reset=0, Curr=LOAD, Next=IDLE, LI=0, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=00, DoneLoad=0
+                  95 Reset=0, Curr=IDLE, Next=IDLE, LI=0, SI=0, RL=1, RS=0,  CI=0,PI=0,CL=00, DoneLoad=1
+                 101 Reset=0, Curr=IDLE, Next=SEND, LI=0, SI=1, RL=0, RS=1,  CI=0,PI=0,CL=00, DoneLoad=1
+                 103 Reset=0, Curr=SEND, Next=SEND, LI=0, SI=0, RL=0, RS=0,  CI=0,PI=0,CL=00, DoneLoad=0
+$finish called from file "Task2_test.sv", line 64.
+$finish at simulation time                 1105
            V C S   S i m u l a t i o n   R e p o r t 
-Time: 1085
-CPU Time:      0.200 seconds;       Data structure size:   0.0Mb
-Fri Dec  4 02:19:26 2020
+Time: 1105
+CPU Time:      0.190 seconds;       Data structure size:   0.0Mb
+Sat Dec  5 01:48:54 2020
