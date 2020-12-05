@@ -166,7 +166,7 @@ endtask
         end else begin 
             send_en = 0; send_clear = 0; 
             ready_to_load = 0; ready_to_send = 0; 
-            
+            nextstate = SEND;
             // Send 1-bit
             if (display_packet[send_count] == 1) begin 
               nextstate = SEND1_1; 

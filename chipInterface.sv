@@ -15,7 +15,7 @@ module chipInterface
 
    assign GPIO_0[1] = neo_data;
    
-   NeoPixelStrandController (.clock(CLOCK_50), .*);
-   Task2 (.clock(CLOCK_50), .*);
+   NeoPixelStrandController np (.clock(CLOCK_50), .*);
+   Task2 t2 (.clock(CLOCK_50), .*);
    
 endmodule: chipInterface 
