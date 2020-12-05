@@ -2,6 +2,7 @@
 
 module chipInterface
   (input  logic CLOCK_50,
+   input  logic [9:0] SW,
    input logic [3:0] KEY,
    output logic [31:0] GPIO_0); 
  
@@ -14,15 +15,15 @@ module chipInterface
 
    logic clock, reset;
 
-   logic syncedKEY2_temp, syncedKEY2;   // synchronized output for KEY2
-  
-   // Flip flop synchronizers for KEY[2] to reduce metastability
-   register #(1) sync2_0 (.q(syncedKEY2_temp), .d(KEY[2]), .en(1'b1), .clock(CLOCK_50), .clear(1'b0), .reset(1'b0));
-   register #(1) sync2_1 (.q(syncedKEY2), .d(syncedKEY2_temp), .en(1'b1), .clock(CLOCK_50), .clear(1'b0), .reset(1'b0));
+  logic syncedKEY0, syncedSW0, syncedSW1; 
+
+  syncInputs si (.inKEY0(KEY[0]), .inSW0(SW[0]), .inSW1(SW[1]), .*);
 
    assign clock = CLOCK_50;    // 50 MHz clock
-   assign reset = ~syncedKEY2; // reset when KEY2 pressed 
+   assign reset = ~syncedKEY0; // reset when KEY2 pressed 
    assign GPIO_0[1] = neo_data;
+
+   assign color_index = {syncedSW1, syncedSW0};
    
    NeoPixelStrandController np (.*);
    Task2 t2 (.*);
