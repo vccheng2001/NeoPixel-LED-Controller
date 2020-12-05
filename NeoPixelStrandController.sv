@@ -94,25 +94,25 @@ module NeoPixelStrandController
 /*                       Task to Load Color                        */
 /*******************************************************************/ 
 
-task do_color;
-  begin 
-  case (color_index)
-    2'b00: begin // red
-      R_en[pixel_index] = 1; R_clear[pixel_index] = 0;
-      R_in[pixel_index] = color_level;
-    end
-    2'b01: begin // blue
-      B_en[pixel_index] = 1; B_clear[pixel_index] = 0;
-      B_in[pixel_index] = color_level;
-    end
-    2'b10: begin // green
-      G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
-      G_in[pixel_index] = color_level;
-    end 
-    default: begin end 
-    endcase
-  end
-endtask
+// task do_color;
+//   begin 
+//   case (color_index)
+//     2'b00: begin // red
+//       R_en[pixel_index] = 1; R_clear[pixel_index] = 0;
+//       R_in[pixel_index] = color_level;
+//     end
+//     2'b01: begin // blue
+//       B_en[pixel_index] = 1; B_clear[pixel_index] = 0;
+//       B_in[pixel_index] = color_level;
+//     end
+//     2'b10: begin // green
+//       G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
+//       G_in[pixel_index] = color_level;
+//     end 
+//     default: begin end 
+//     endcase
+//   end
+// endtask
 
 /******************************************************************/
 /*                  Producer FSM: Neo Controller                  */
@@ -150,7 +150,21 @@ endtask
 
         if (load_color) begin       // load color
            nextstate = IDLE_OR_LOAD;
-           do_color();
+           case (color_index)
+            2'b00: begin // red
+              R_en[pixel_index] = 1; R_clear[pixel_index] = 0;
+              R_in[pixel_index] = color_level;
+            end
+            2'b01: begin // blue
+              B_en[pixel_index] = 1; B_clear[pixel_index] = 0;
+              B_in[pixel_index] = color_level;
+            end
+            2'b10: begin // green
+              G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
+              G_in[pixel_index] = color_level;
+            end 
+          default: begin end 
+          endcase
         end else if (send_it) begin // start sending, can't send anymore 
            nextstate = SEND;
            ready_to_send = 0;
@@ -253,7 +267,23 @@ endtask
     /******************************************************************/
 
       WAIT: begin 
-        if (load_color) do_color();
+        if (load_color) begin 
+          case (color_index)
+            2'b00: begin // red
+              R_en[pixel_index] = 1; R_clear[pixel_index] = 0;
+              R_in[pixel_index] = color_level;
+            end
+            2'b01: begin // blue
+              B_en[pixel_index] = 1; B_clear[pixel_index] = 0;
+              B_in[pixel_index] = color_level;
+            end
+            2'b10: begin // green
+              G_en[pixel_index] = 1; G_clear[pixel_index] = 0;
+              G_in[pixel_index] = color_level;
+            end 
+          default: begin end 
+          endcase
+        end 
         ready_to_load = 1;
         // If waited 50 microseconds 
         if (wait50_count == 12'd2500) begin 
