@@ -11,7 +11,7 @@ module NeoPixelStrandController
  output logic neo_data, ready_to_load, ready_to_send);
 
 /******************************************************************/
-/*                          Define RGB Color Logic 
+/*                          Define RGB Color Logic                */
 /*******************************************************************/
  logic [4:0][7:0] G, R, B;
 
@@ -31,7 +31,7 @@ module NeoPixelStrandController
  endgenerate
 
 /******************************************************************/
-/*                        Display packet 
+/*                        Display packet                          */
 /*******************************************************************/
  logic [4:0][23:0] LED_Command;
  logic [119:0] display_packet;
@@ -49,7 +49,7 @@ module NeoPixelStrandController
 
 
 /******************************************************************/
-/*   Send display packet: 5 LEDs * 40 bits/LED = 120 bits
+/*   Send display packet: 5 LEDs * 40 bits/LED = 120 bits         */
 /*******************************************************************/
   logic [6:0] send_count;
   logic send_en, send_clear;
@@ -58,7 +58,7 @@ module NeoPixelStrandController
 
 
 /******************************************************************/
-/*            Count number of cycles when sending 1s/0s
+/*            Count number of cycles when sending 1s/0s           */
 /*******************************************************************/
   // Count cycles 
   logic [6:0] cycle_count;
@@ -79,7 +79,7 @@ module NeoPixelStrandController
  localparam NUM_BITS = 7'd120;
 
 /******************************************************************/
-/*                              Wait 50 us Counters
+/*                              Wait 50 us Counters                 */
 /*******************************************************************/ 
   // Wait 50 microseconds between each display packet
   logic [11:0] wait50_count;
@@ -89,12 +89,9 @@ module NeoPixelStrandController
                               .d(12'd0), .clock(clock), .reset(reset));
 
 
-  // done_high when done waiting for cycles where asserted high 
-  // done_low when done waiting for cycles where asserted low 
-  logic done_high, done_low; 
 
 /******************************************************************/
-/*                       Task to Load Color
+/*                       Task to Load Color                        */
 /*******************************************************************/ 
 
 task do_color;
@@ -117,11 +114,11 @@ task do_color;
 endtask
 
 /******************************************************************/
-/*                  Producer FSM: Neo Controller
+/*                  Producer FSM: Neo Controller                  */
 /*******************************************************************/
 
   // States
-  enum logic [2:0] {IDLE_OR_LOAD, SEND, SEND1, SEND0, WAIT} currstate, nextstate;
+  enum logic [2:0] {IDLE_OR_LOAD, SEND, SEND1_1, SEND1_0, SEND0_1, SEND0_0, WAIT} currstate, nextstate;
 
   // Next state logic 
   always_ff @(posedge clock, posedge reset)
@@ -147,7 +144,6 @@ endtask
     case (currstate)
 
       IDLE_OR_LOAD: begin
-        done_low = 0; done_high = 0;
         // default: can load and send 
         ready_to_load = 1; ready_to_send = 1;
 
@@ -162,26 +158,24 @@ endtask
 
       // Send display packet of 120 bits 
       SEND: begin 
-        done_high = 0; done_low = 0;
-
         // Iterated through all 120 pixels in display packet 
         if (send_count == NUM_BITS) begin 
             nextstate = WAIT; // wait 50 microseconds 
             ready_to_load = 1; ready_to_send = 0;
         end else begin 
-            send_en = 1; send_clear = 0; 
+            send_en = 0; send_clear = 0; 
             ready_to_load = 0; ready_to_send = 0; 
             
             // Send 1-bit
             if (display_packet[send_count] == 1) begin 
-              nextstate = SEND1; 
+              nextstate = SEND1_1; 
               neo_data = 1; 
               cycle_en = 1; cycle_clear = 0;
             end 
 
             // Send 0-bit
             else if (display_packet[send_count] == 0) begin 
-              nextstate = SEND0;
+              nextstate = SEND0_1;
               neo_data = 1;
               cycle_en = 1; cycle_clear = 0; 
             end 
@@ -193,105 +187,83 @@ endtask
     /*       SEND A ONE-BIT: 35 cycles high, 30 cycles low            */
     /******************************************************************/
         
-      // One-bit: 35 cycles high, 30 cycles low 
-      SEND1: begin 
+    SEND1_1: begin 
         ready_to_load = 0; ready_to_send = 0;
         send_en = 0; send_clear = 0; // maintain bit (out of 120) being sent 
-
-        // Sending high bits 
-        if (!done_high & !done_low) begin
-          done_low = 0;
-          nextstate = SEND1;  
-          // Finished 35 high 
-          if (cycle_count == BIT_1_HIGH) begin 
-            neo_data = 0;  // send first low bit, keep counting 
-            done_high = 1; cycle_en = 1; cycle_clear = 0; 
-          // Not finished 35 high 
-          end else begin 
-            neo_data = 1; // send high bits, keep counting 
-            done_high = 0; cycle_en = 1; cycle_clear = 0;  
-          end 
+        cycle_en = 1; cycle_clear = 0;
+    
+        if (cycle_count == BIT_1_HIGH) begin 
+          neo_data = 0; // send first 0, done high 
+          nextstate = SEND1_0;
+        end else begin 
+          neo_data = 1; // send ones 
+          nextstate = SEND1_1; 
         end 
+     end 
 
-        // Finished 35 high
-        else if (done_high & !done_low) begin 
-          done_high = 1;
-          // Finished 30 low
-          if (cycle_count == (BIT_1_HIGH + BIT_1_LOW - 1)) begin  // 35 + 30 - 1
-            nextstate = SEND;
-            neo_data = 0; // send last low bit, stop counting 
-            done_low = 1; cycle_en = 0; cycle_clear = 1;  
-          // Not finished 30 low
-          end else begin 
-            nextstate = SEND1; 
-            neo_data = 0; // send low bits, keep counting 
-            done_low = 0; cycle_en = 1; cycle_clear = 0;
-          end 
+     SEND1_0: begin 
+        if (cycle_count == BIT_1_HIGH + BIT_1_LOW - 1) begin 
+          neo_data = 0; // send last 0 
+          nextstate = SEND;
+          cycle_en = 0; cycle_clear = 1; 
+          send_en = 1; send_clear = 0; 
+        end else begin 
+          neo_data = 0;
+          nextstate = SEND1_0;
+          cycle_en = 1; cycle_clear = 0;
+           send_en = 0; send_clear = 0;  
         end 
+     end 
 
-      end
     /******************************************************************/
     /*       SEND A ZERO-BIT: 18 cycles high, 40 cycles low            */
     /******************************************************************/
-      
-      // Zero-bit: 18 cycles high, 40 cycles low 
-      SEND0: begin 
+
+    SEND0_1: begin 
         ready_to_load = 0; ready_to_send = 0;
-        send_en = 0; send_clear = 0;
-
-        // Sending high bits 
-        if (!done_high & !done_low) begin
-          done_low = 0;
-          nextstate = SEND0;  
-          // Finished 18 high 
-          if (cycle_count == BIT_0_HIGH) begin 
-            neo_data = 0;  // send first low bit, keep counting 
-            done_high = 1; cycle_en = 1; cycle_clear = 0;
-          // Not finished 18 high 
-          end else begin 
-            neo_data = 1; // send high bits, keep counting 
-            done_high = 0; cycle_en = 1; cycle_clear = 0;  
-          end 
+        send_en = 0; send_clear = 0; // maintain bit (out of 120) being sent 
+        cycle_en = 1; cycle_clear = 0;
+    
+        if (cycle_count == BIT_0_HIGH) begin 
+          neo_data = 0; // send first 0, done high 
+          nextstate = SEND0_0;
+        end else begin 
+          neo_data = 1; // send ones 
+          nextstate = SEND0_1; 
         end 
+     end 
 
-        // Sending low bits 
-        else if (done_high & !done_low) begin 
-          done_high = 1;
-          // Finished 40 low
-          if (cycle_count == (BIT_0_HIGH + BIT_0_LOW - 1)) begin  // 18 + 40 - 1
-            nextstate = SEND;
-            neo_data = 0; // send last low bit, stop counting 
-            done_low = 1; cycle_en = 0; cycle_clear = 1;
-          // Not finished 40 low
-          end else begin 
-            nextstate = SEND0; 
-            neo_data = 0; // send low bits, keep counting  
-            done_low = 0; cycle_en = 1; cycle_clear = 0;
-          end 
+     SEND0_0: begin 
+        if (cycle_count == BIT_0_HIGH + BIT_0_LOW - 1) begin 
+          nextstate = SEND;
+          neo_data = 0; // send last 0 
+          cycle_en = 0; cycle_clear = 1; 
+          send_en = 1; send_clear = 0; 
+        end else begin
+          nextstate = SEND0_0; 
+          neo_data = 0;
+          cycle_en = 1; cycle_clear = 0; 
+          send_en = 0; send_clear = 0; 
         end 
+     end 
 
-      end
-
-      // Must wait 50 microseconds before SEND another display packet 
+    /******************************************************************/
+    /*       Wait 50 microseconds between display packets             */
+    /******************************************************************/
 
       WAIT: begin 
-          done_low = 0; done_high = 0;
-          send_en = 0; send_clear = 1;
-          if (load_color) begin 
-           do_color();
-          end
-          // If waited 50 microseconds 
-          if (wait50_count == 12'd2500) begin 
-              nextstate = IDLE_OR_LOAD;
-              // Clear wait 
-              wait50_en = 0; wait50_clear = 1;
-              ready_to_load = 1; ready_to_send = 1;
-          end else begin 
-              nextstate = WAIT;
-              // Count
-              wait50_en = 1; wait50_clear = 0;
-              ready_to_load = 1; ready_to_send = 0;
-          end 
+        if (load_color) do_color();
+        ready_to_load = 1;
+        // If waited 50 microseconds 
+        if (wait50_count == 12'd2500) begin 
+            nextstate = IDLE_OR_LOAD;
+            wait50_en = 0; wait50_clear = 1;
+            ready_to_send = 1;
+        end else begin 
+            nextstate = WAIT;
+            wait50_en = 1; wait50_clear = 0;
+            ready_to_send = 0;
+        end 
       end 
       
     endcase
