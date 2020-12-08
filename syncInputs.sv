@@ -24,7 +24,7 @@ register #(1) syncKEY0_1 (.q(syncedKEY0), .d(syncedKEY0_temp), .en(1'b1), .clock
  generate
  for (j = 0; j < 5; j++) begin: sw
     register #(1) syncSW_0 (.q(syncedSW_temp[j]), .d(inSW[j]), .en(1'b1), .clock(clock), .clear(1'b0), .reset(reset));
-    register #(1) syncSW_1 (.q(syncedSW[j]), .d(syncedSW_temp[j]]), .en(1'b1), .clock(clock), .clear(1'b0), .reset(reset));
+    register #(1) syncSW_1 (.q(syncedSW[j]), .d(syncedSW_temp[j]), .en(1'b1), .clock(clock), .clear(1'b0), .reset(reset));
  end
  endgenerate
 
