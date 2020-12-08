@@ -1,5 +1,7 @@
 `default_nettype none
 
+
+
 module Task2
   (input  logic clock, reset, 
    // Handshaking signals 
@@ -13,19 +15,38 @@ module Task2
    output logic [1:0] color_index,
    output logic [7:0] color_level,
 
-   output logic load_color, 
+   output logic load_color,
    output logic send_it);
 
   /******************************************************************/
   /*                  Control color level (0-32 )                   */
   /******************************************************************/
- 
 
-  logic [4:0] hue_to_load;
+  logic [5:0] hue_count;
   logic hue_en, hue_clear;
 
-  counter #(5) hueCounter (.en(hue_en), .clear(hue_clear), .q(hue_to_load),
-                              .d(5'd0), .clock(clock), .reset(reset));
+  counter #(6) hueCounter (.en(hue_en), .clear(hue_clear), .q(hue_count),
+                              .d(6'd0), .clock(clock), .reset(reset));
+
+
+  localparam C0 = 8'h00;
+  localparam C1 = 8'h05;
+  localparam C2 = 8'h10;
+  localparam C3 = 8'h20;
+
+logic [62:0][7:0] C_ARR;
+logic [62:0][2:0] P_ARR;
+    
+ assign C_ARR = {C0, C1, C0, C1, C1, C3, C2, C0, C3, C2, C3, C0, C1, C3, C1, C1, C2, C3, C2, C0,
+                      C2, C2, C0, C3, C1, C0, C0, C0, C3, C2, C0, C3, C1, C2, C3, C1, C1, C2, C2, C0, 
+                      C2, C1, C3, C2, C0, C0, C1, C0, C1,  C1, C0, C0, C1, C3, C3, C3, C2, C2, C0, C1,
+                      C0, C3, C1, C2, C2, C0, C1,C1, C3, C2, C0, C3, C0, C2, C3, C1, C0, C3, C0, C1, 
+                      C2, C2, C0, C3, C1, C0, C0, C0, C3, C2, C0, C3, C1, C2, C3, C1, C1, C2, C2, C0, C1, C2, C3};
+ assign P_ARR = {3'd1,3'd1,3'd2,
+                3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4,3'd0,3'd1,3'd2,3'd1,3'd0,
+                3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4,3'd0,3'd1,3'd2,3'd1,3'd0,
+                3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4,3'd0,3'd1,3'd2,3'd1,3'd0};
+ 
 
 
   /******************************************************************/
@@ -57,29 +78,29 @@ module Task2
   /*                  Control number of loads                       */
   /******************************************************************/
 
-function logic [2:0] get_pixel_index
-    (input logic [4:0] syncedSW,
-     input logic [2:0] pixel_to_load);
-    if (pixel_to_load <= 3'd4) begin 
-      if (syncedSW[pixel_to_load]) return pixel_to_load;
-      else return 3'd0;
-    end
-    else return 3'd4; 
-endfunction
+// function logic [2:0] get_pixel_index
+//     (input logic [4:0] syncedSW,
+//      input logic [2:0] pixel_to_load);
+//     if (pixel_to_load <= 3'd4) begin 
+//       if (syncedSW[pixel_to_load]) return pixel_to_load;
+//       else return 3'd0;
+//     end
+//     else return 3'd4; 
+// endfunction
 
 
-function logic [7:0] get_color_level
-     (input logic [1:0] toggle);
-    if (toggle == 2'b11 ) return 8'h20;
-    else if (toggle == 2'b10) return 8'h10;
-    else if (toggle == 2'b01) return 8'h05;
-    else return 8'h00;
+// function logic [7:0] get_color_level
+//      (input logic [1:0] toggle);
+//     if (toggle == 2'b11 ) return 8'h20;
+//     else if (toggle == 2'b10) return 8'h10;
+//     else if (toggle == 2'b01) return 8'h05;
+//     else return 8'h00;
 
-endfunction
+// endfunction
 
 
  
- localparam MAX_NUM_LOADS = 8'd255;
+ localparam MAX_NUM_LOADS = 6'd63;
 
   // Number of loads
   logic [7:0] load_count;
@@ -121,13 +142,14 @@ endfunction
     load_count_en = 0; load_count_clear = 1;
     loaded = 0;
     sent_count_en = 0; sent_count_clear = 0;
-    toggle_en = 0; toggle_clear = 0;
+    toggle_en = 1; toggle_clear = 0;
 
 
     case (currstate)
       RESET: begin 
         nextstate = IDLE;
         toggle_en = 0; toggle_clear = 1; 
+        hue_clear = 1; hue_en = 0;
         sent_count_en = 0; sent_count_clear = 1; 
       end 
 
@@ -138,14 +160,14 @@ endfunction
       IDLE: begin
         if (ready_to_load && sent_count == 13'd0) begin  // only load if not already done 
           nextstate = LOAD;
-          toggle_en = 1; toggle_clear = 0;
+          // toggle_en = 1; toggle_clear = 0;
           // tell neopixel to use these values 
           load_color = 1; 
           load_count_en = 1; load_count_clear = 0;
 
-          pixel_index = get_pixel_index(syncedSW, pixel_to_load);
-          color_index = (toggle == 2'b11)? 2'b10 : toggle;
-          color_level = get_color_level(toggle);
+          pixel_index = P_ARR[hue_count];
+          color_index = (toggle == 2'b11)?  2'b00 : toggle;
+          color_level = C_ARR[hue_count];
         end else if (ready_to_send) begin 
           sent_count_clear = 0; sent_count_en = 1;
           loaded = 0;
@@ -185,10 +207,10 @@ endfunction
 
           load_color = 1; 
           load_count_en = 1; load_count_clear = 0; 
-
-          pixel_index = get_pixel_index(syncedSW, pixel_to_load);
+          
+          pixel_index = P_ARR[hue_count];
           color_index = (toggle == 2'b11)? 2'b10 : toggle;
-          color_level = get_color_level(toggle);
+          color_level = C_ARR[hue_count];
         end
       end
 
