@@ -8,6 +8,7 @@ module NeoPixelStrandController
  input logic [2:0] pixel_index,
  input logic clock, reset, // clock must be 50MHz
  input logic load_color, send_it,
+ output logic begin_send, done_send, done_wait,
  output logic neo_data, ready_to_load, ready_to_send);
 
 /******************************************************************/
@@ -82,19 +83,18 @@ module NeoPixelStrandController
 /*                              Wait 50 us Counters                 */
 /*******************************************************************/ 
   // Wait 50 microseconds between each display packet
-  logic [11:0] wait50_count;
+  logic [19:0] wait50_count;
   logic wait50_en, wait50_clear;
 
-  counter #(12) wait50 (.en(wait50_en), .clear(wait50_clear), .q(wait50_count),
-                              .d(12'd0), .clock(clock), .reset(reset));
+  counter #(20) wait50 (.en(wait50_en), .clear(wait50_clear), .q(wait50_count),
+                              .d(20'd0), .clock(clock), .reset(reset));
 
 /******************************************************************/
 /*                  Producer FSM: Neo Controller                  */
 /*******************************************************************/
 
   // Signal variables
-  logic begin_send; 
-  logic done_send;
+
   logic send_one, send_zero;  // Sending one bit/zero bit
 
   // States
@@ -110,7 +110,7 @@ module NeoPixelStrandController
     // default values 
     neo_data = 1'b0;  // should be 1'bx?
 
-    begin_send = 0; done_send = 0; send_one = 0; send_zero = 0; 
+    begin_send = 0; done_send = 0; send_one = 0; send_zero = 0; done_wait = 0;
 
     wait50_en = 0; wait50_clear = 1;      // reset counters to 0
     cycle_en = 0; cycle_clear = 1;   
@@ -149,7 +149,6 @@ module NeoPixelStrandController
         end else if (send_it) begin // start sending, can't send anymore 
            begin_send = 1;
            nextstate = SEND;
-           ready_to_send = 0;
         end else nextstate = IDLE_OR_LOAD; // do nothing 
       end
 
@@ -271,7 +270,8 @@ module NeoPixelStrandController
         end 
         ready_to_load = 1;
         // If waited 50 microseconds 
-        if (wait50_count == 12'd2500) begin 
+        if (wait50_count == 12'd50) begin 
+          done_wait = 1;
             nextstate = IDLE_OR_LOAD;
             wait50_en = 0; wait50_clear = 1;
             ready_to_send = 1;

@@ -6,6 +6,7 @@ module Task2
    input logic neo_data,
    input logic ready_to_load,
    input logic ready_to_send,
+   input logic begin_send, done_send, done_wait,
    
    output logic [2:0] pixel_index,      
    output logic [1:0] color_index,
@@ -14,16 +15,6 @@ module Task2
    output logic load_color, 
    output logic send_it);
 
-
-  /******************************************************************/
-  /*                  Control done_loaded                           */
-  /******************************************************************/
-
-  logic loaded;
-  logic loaded_clear, loaded_en;
-
-  register #(1) ld (.q(loaded), .d(1'b1), .en(loaded_en), .clear(loaded_clear), .clock(clock), .reset(reset));
-  
   /******************************************************************/
   /*                  Control color level (0-32 )                   */
   /******************************************************************/
@@ -46,6 +37,15 @@ module Task2
   counter #(2) pixelCounter (.en(pixel_en), .clear(pixel_clear), .q(pixel_to_load),
                               .d(2'd0), .clock(clock), .reset(reset));
 
+
+
+  logic [1:0] count;
+  logic count_en, count_clear;
+  assign pixel_en = (count==3); 
+
+  counter #(2) ccounter (.en(count_en), .clear(count_clear), .q(count),
+                              .d(2'd0), .clock(clock), .reset(reset));
+
   /******************************************************************/
   /*                  Control number of loads                       */
   /******************************************************************/
@@ -59,58 +59,78 @@ module Task2
   counter #(8) loadCounter (.en(load_count_en), .clear(load_count_clear), .q(load_count),
                               .d(8'd0), .clock(clock), .reset(reset));
 
+ /******************************************************************/
+  /*                  Control number of sends                       */
+  /******************************************************************/
+ 
+  // Num times the same LED vals were sent
+  logic [19:0] sent_count;
+  logic sent_count_en, sent_count_clear;
+
+  counter #(20) sentCounter (.en(sent_count_en), .clear(sent_count_clear), .q(sent_count),
+                              .d(20'd0), .clock(clock), .reset(reset));
 
   /******************************************************************/
   /*                      Producer FSM                              */
   /******************************************************************/
-  enum logic [2:0] {RESET, IDLE, LOAD, SEND} currstate, nextstate;
+  enum logic [2:0] {RESET, IDLE,IDLE2, LOAD, SEND} currstate, nextstate;
 
   // Next state logic 
   always_ff @(posedge clock, posedge reset)
-    if (reset) currstate <= RESET;
+    if (reset) currstate <= IDLE;
     else currstate <= nextstate;   
 
+  logic loaded; 
   // FSM logic for states/output values
   always_comb begin
-
-    pixel_en = 1; pixel_clear = 0; // always vary values
+    count_en = 1; count_clear = 0;
+    pixel_clear = 0; // always vary values
     hue_en = 1; hue_clear = 0;     // always vary hues 
     pixel_index = 3'd0; color_level = 8'h00; color_index = 2'b00;
 
     load_color = 0; send_it = 0; 
     load_count_en = 0; load_count_clear = 1;
+    loaded = 0;
+    sent_count_en = 0; sent_count_clear = 0;
 
-    loaded_en = 0; loaded_clear = 0;
 
     case (currstate)
-    
       RESET: begin 
-        loaded_en = 0; loaded_clear = 1;
         nextstate = IDLE;
-      end
+        sent_count_en = 0; sent_count_clear = 1; 
+      end 
 
       /******************************************************************/
       /*                 Wait for Load/Send                             */
       /******************************************************************/
     
       IDLE: begin
-
-        if (ready_to_load && !loaded) begin  // only load if not already done 
+        if (ready_to_load && sent_count == 20'h0) begin  // only load if not already done 
           nextstate = LOAD;
           // tell neopixel to use these values 
           load_color = 1; 
           load_count_en = 1; load_count_clear = 0;
 
           pixel_index = pixel_to_load;
-          color_index = pixel_to_load;
+          color_index = count;
           color_level = hue_to_load;   
-
         end else if (ready_to_send) begin 
+          sent_count_clear = 0; sent_count_en = 1;
+          loaded = 0;
           nextstate = SEND;
-          send_it = 1;
-          loaded_clear = 1; loaded_en = 0;
-
+          send_it = 1; 
         end else nextstate = IDLE;
+  
+      end
+
+      IDLE2: begin
+        loaded = 1; 
+        if (ready_to_send) begin 
+          sent_count_clear = 0; sent_count_en = 1;  
+          loaded = 0;
+          nextstate = SEND;
+          send_it = 1; 
+        end else nextstate = IDLE2;
   
       end
 
@@ -122,9 +142,10 @@ module Task2
       LOAD: begin
 
         if (!ready_to_load || load_count == MAX_NUM_LOADS) begin 
-          nextstate = IDLE;
+          nextstate = IDLE2;
+          load_count_clear = 1; load_count_en = 0;
           load_color = 0;
-          loaded_en = 1; loaded_clear = 0; // loaded = 1
+          loaded = 1;
         end 
         // keep loading until MAX_NUM_LOADS
         else begin 
@@ -134,7 +155,7 @@ module Task2
           load_count_en = 1; load_count_clear = 0; 
 
           pixel_index = pixel_to_load;
-          color_index = pixel_to_load;
+          color_index = count;
           color_level = hue_to_load; 
         end
       end
@@ -145,8 +166,7 @@ module Task2
  
 
       SEND: begin // wait for a ready_to_load signal
-        loaded_en = 0; loaded_clear = 1; 
-        if (!ready_to_load && !ready_to_send) nextstate = SEND;
+        if (!done_wait) nextstate = SEND;
         else nextstate = IDLE;
       end
 

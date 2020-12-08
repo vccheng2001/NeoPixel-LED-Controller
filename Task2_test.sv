@@ -9,9 +9,10 @@ module Task2_test();
 
    logic load_color, send_it;         // Signals 
    logic neo_data, ready_to_load, ready_to_send;
-
+   logic begin_send, done_send, done_wait;
   // Instantiate dut
-    Task2 dut (.*);
+    Task2 t2 (.*);
+    NeoPixelStrandController neo (.*);
 
   // Testbench clock
   initial begin
@@ -21,46 +22,21 @@ module Task2_test();
 
   // Simulates test
   initial begin
-    $monitor($time," Reset=%d, Curr=%s, Next=%s, LI=%d, SI=%d, RL=%b, RS=%b,  CI=%d,PI=%d,CL=%h, Loaded=%b",
-    reset, dut.currstate.name, dut.nextstate.name,load_color, send_it, ready_to_load, ready_to_send, color_index, pixel_index, color_level, dut.loaded);
+    $monitor($time,"Neo_CS=%s, Neo_NS=%s, T2_CS=%s, T2_NS = %s, RL=%d,RS=%d,(PI=%d,CI=%d,CL=%h),LC=%d,SI=%d,T2LoadCnt=%d, T2Loaded=%d,DP=%h, Neo=%d, CC=%d, W50=%d, DW=%d, SC=%h", neo.currstate.name, neo.nextstate.name, t2.currstate.name, t2.nextstate.name, ready_to_load,ready_to_send,pixel_index,color_index,color_level,load_color,
+    send_it, t2.load_count, t2.loaded, neo.display_packet, neo_data, neo.cycle_count, neo.wait50_count, done_wait, t2.sent_count);
  
     reset = 1; 
-    // Init to 0
     @(posedge clock);          
     reset <= 0;
-    ready_to_load <= 0;
-    ready_to_send <= 0;
     @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
-    ready_to_load <= 1; ready_to_send <= 1; // load
-    @(posedge clock);
-    wait(dut.loaded);
-    ready_to_load <= 0; ready_to_send <= 1;
-    @(posedge clock);
-    ready_to_load <= 0; ready_to_send <= 0; 
-    @(posedge clock);
-   
-    @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
-    @(posedge clock);
-    // @(posedge clock);
-    // @(posedge clock); // wait..... still sending 
-    // ready_to_load <= 1;
-    // @(posedge clock);
-    // @(posedge clock); 
-    // wait(dut.loaded)
-    // ready_to_load <= 1; ready_to_send <= 0;
-    // @(posedge clock);
-    // @(posedge clock);
-    // @(posedge clock);
-    // ready_to_send <= 1; ready_to_load <= 0;
-    // @(posedge clock);
-    // ready_to_send <= 0;
-    // @(posedge clock); 
-    #100000 $finish;            
+    wait(begin_send);
+    $display("\n***********BEGIN SENDING************\n");
+    wait(done_send);
+    $display("\n***********DONE SENDING************\n");
+    wait(done_wait);
+    $display("\n***********DONE WAITING************\n");
+
+    #10000 $finish;            
   end
 
 

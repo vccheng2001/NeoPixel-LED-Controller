@@ -12,6 +12,7 @@ module chipInterface
 
    logic load_color, send_it;        
    logic neo_data, ready_to_load, ready_to_send;
+   logic begin_send, done_send, done_wait;
 
    logic clock, reset;
 
