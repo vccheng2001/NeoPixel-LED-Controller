@@ -83,11 +83,11 @@ module NeoPixelStrandController
 /*                              Wait 50 us Counters                 */
 /*******************************************************************/ 
   // Wait 50 microseconds between each display packet
-  logic [19:0] wait50_count;
+  logic [11:0] wait50_count;
   logic wait50_en, wait50_clear;
 
-  counter #(20) wait50 (.en(wait50_en), .clear(wait50_clear), .q(wait50_count),
-                              .d(20'd0), .clock(clock), .reset(reset));
+  counter #(12) wait50 (.en(wait50_en), .clear(wait50_clear), .q(wait50_count),
+                              .d(12'd0), .clock(clock), .reset(reset));
 
 /******************************************************************/
 /*                  Producer FSM: Neo Controller                  */
@@ -270,7 +270,7 @@ module NeoPixelStrandController
         end 
         ready_to_load = 1;
         // If waited 50 microseconds 
-        if (wait50_count == 12'd50) begin 
+        if (wait50_count == 12'd2500) begin 
           done_wait = 1;
             nextstate = IDLE_OR_LOAD;
             wait50_en = 0; wait50_clear = 1;
