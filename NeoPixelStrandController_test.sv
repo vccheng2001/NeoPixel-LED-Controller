@@ -1,7 +1,7 @@
 `default_nettype none
 
 /******************************************************************/
-//    Generate random constrained fields for load_color
+//    Generate randomized constrained fields for load_color
 /*******************************************************************/
 // Pixel index: num of LED (0-4)
 // Color index: R = 2'b00, B = 2'b01, G = 2'b10;
@@ -25,7 +25,7 @@ class genLoadColor;
 endclass 
 
 /******************************************************************/
-//    Generate number of times to load_color 
+//    Generate randomized number of times to load_color 
 /*******************************************************************/
 // Num_loads: calls load_color 0 - 63 times 
 class genNumLoads;
@@ -37,7 +37,9 @@ endclass
 
 
 
-// Testbench module
+/******************************************************************/
+//                  NeoPixel Controller: Testbench                 */ 
+/*******************************************************************/
 module NeoPixelStrandController_test;
    logic clock, reset;
 
@@ -62,9 +64,10 @@ module NeoPixelStrandController_test;
   genNumLoads nl;
 
 /*******************************************************************/
-/*                      Reset inputs to dut                        */
+/*                      Task: Reset inputs to dut                  */
 /*******************************************************************/ 
   task do_reset();
+    $display("\n*****RESETTING ALL VALUES AND INPUTS TO DUT****\n" );
     reset = 1; 
     load_color = 0; send_it = 0;
     color_index = 2'b00; pixel_index = 3'd0; color_level = 8'h00;
@@ -74,13 +77,12 @@ module NeoPixelStrandController_test;
   endtask
 
 /*****************************************************************(*/
-/*                   Randomized loads, then send packet         */
+/*                  Task: Randomized loads, then send packet       */
 /*******************************************************************/ 
 
   task loadSendTest();
    begin
-    $display("********TESTING LOAD/SEND WITH RANDOMIZED VALUES ***********");
-    do_reset();                              // Reset inputs to dut
+    $display("\n******** Begin a round of load/sends:***********");
  
     nl = new();                              // Randomize number of loads
     nl.randomize();
@@ -94,10 +96,11 @@ module NeoPixelStrandController_test;
       color_index <= lc.color_index;         // color index, color levels 
       color_level <= lc.color_level;
       lc.display_randomized_colors();
+      $display("Display packet: %h", dut.display_packet); 
       @(posedge clock);
     end 
 
-    $display("Display packet to send: %h", dut.display_packet);
+    $display("DISPLAY PACKET TO SEND: %h", dut.display_packet);
 
     load_color <= 0; send_it <= 1;            // Send 
     @(posedge clock);
@@ -110,17 +113,23 @@ module NeoPixelStrandController_test;
 
 
 /******************************************************************/
-/*                          Runs all tests                        */
+/*                    Main TB:  Runs all tests                    */
 /******************************************************************/
   initial begin
-    repeat (10) begin 
-      loadSendTest();         // Loads randomized colors, then sends
+    $display("\n******** TESTING RANDOMIZED LOADS/SENDS ***********");
+    do_reset();               // Reset inputs to dut
+    repeat (20) begin         // Keep loading randomized colors, then sending
+      loadSendTest();         
+    end
+    do_reset();
+    repeat (10) begin         // Keep loading randomized colors, then sending
+      loadSendTest();         
     end
     #1 $finish;
   end
 
 /******************************************************************/
-/*                          ASSERTIONS                            */
+/*                     Concurrent Assertions                      */
 /******************************************************************/
 
 // Load color assertions
