@@ -29,24 +29,25 @@ module Task2
                               .d(6'd0), .clock(clock), .reset(reset));
 
 
-  localparam C0 = 8'h00;
+  localparam C0 = 8'h02;
   localparam C1 = 8'h05;
   localparam C2 = 8'h10;
-  localparam C3 = 8'h20;
+  localparam C3 = 8'h16;
 
-logic [62:0][7:0] C_ARR;
-logic [62:0][2:0] P_ARR;
-    
- assign C_ARR = {C0, C1, C0, C1, C1, C3, C2, C0, C3, C2, C3, C0, C1, C3, C1, C1, C2, C3, C2, C0,
-                      C2, C2, C0, C3, C1, C0, C0, C0, C3, C2, C0, C3, C1, C2, C3, C1, C1, C2, C2, C0, 
-                      C2, C1, C3, C2, C0, C0, C1, C0, C1,  C1, C0, C0, C1, C3, C3, C3, C2, C2, C0, C1,
-                      C0, C3, C1, C2, C2, C0, C1,C1, C3, C2, C0, C3, C0, C2, C3, C1, C0, C3, C0, C1, 
-                      C2, C2, C0, C3, C1, C0, C0, C0, C3, C2, C0, C3, C1, C2, C3, C1, C1, C2, C2, C0, C1, C2, C3};
- assign P_ARR = {3'd1,3'd1,3'd2,
-                3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4,3'd0,3'd1,3'd2,3'd1,3'd0,
-                3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4,3'd0,3'd1,3'd2,3'd1,3'd0,
-                3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4,3'd0,3'd1,3'd2,3'd1,3'd0};
- 
+  logic [62:0][7:0] C_ARR;
+  logic [62:0][2:0] P_ARR;
+      
+  assign C_ARR =  {C0,C1,C2,C3,C3,C2,C1,C0,C0,C1,C2,C3,C3,C2,C1,C0,C0,C1,C2,C3,
+                    C0,C2,C1,C3,C3,C1,C2,C0,C0,C2,C1,C3,C3,C1,C2,C0,C0,C2,C1,C3,
+                    C0,C0,C1,C1,C2,C2,C3,C3,C3,C3,C2,C2,C1,C1,C0,C0,C0,C0,C1,C1,
+                    C2,C2,C3};
+                          
+  assign P_ARR = {3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4, // 15
+                  3'd4,3'd4,3'd4,3'd3,3'd3,3'd3,3'd2,3'd2,3'd2,3'd1,3'd1,3'd1,3'd0,3'd0,3'd0,
+                  3'd3,3'd3,3'd3,3'd2,3'd2,3'd2,3'd1,3'd1,3'd1,3'd0,3'd0,3'd0,3'd4,3'd4,3'd4,
+                  3'd2,3'd2,3'd2,3'd1,3'd1,3'd1,3'd0,3'd0,3'd0,3'd4,3'd4,3'd4,3'd3,3'd3,3'd3,
+                  3'd1,3'd1,3'd1};
+  
 
 
   /******************************************************************/
@@ -77,48 +78,26 @@ logic [62:0][2:0] P_ARR;
   /******************************************************************/
   /*                  Control number of loads                       */
   /******************************************************************/
-
-// function logic [2:0] get_pixel_index
-//     (input logic [4:0] syncedSW,
-//      input logic [2:0] pixel_to_load);
-//     if (pixel_to_load <= 3'd4) begin 
-//       if (syncedSW[pixel_to_load]) return pixel_to_load;
-//       else return 3'd0;
-//     end
-//     else return 3'd4; 
-// endfunction
-
-
-// function logic [7:0] get_color_level
-//      (input logic [1:0] toggle);
-//     if (toggle == 2'b11 ) return 8'h20;
-//     else if (toggle == 2'b10) return 8'h10;
-//     else if (toggle == 2'b01) return 8'h05;
-//     else return 8'h00;
-
-// endfunction
-
-
  
- localparam MAX_NUM_LOADS = 6'd63;
+ localparam MAX_NUM_LOADS = 15;
 
   // Number of loads
-  logic [7:0] load_count;
+  logic [6:0] load_count;
   logic load_count_en, load_count_clear;
 
-  counter #(8) loadCounter (.en(load_count_en), .clear(load_count_clear), .q(load_count),
-                              .d(8'd0), .clock(clock), .reset(reset));
+  counter #(7) loadCounter (.en(load_count_en), .clear(load_count_clear), .q(load_count),
+                              .d(7'd0), .clock(clock), .reset(reset));
 
  /******************************************************************/
   /*                  Control number of sends                       */
   /******************************************************************/
  
   // Num times the same LED vals were sent
-  logic [12:0] sent_count;
+  logic [11:0] sent_count;
   logic sent_count_en, sent_count_clear;
 
-  counter #(13) sentCounter (.en(sent_count_en), .clear(sent_count_clear), .q(sent_count),
-                              .d(13'd0), .clock(clock), .reset(reset));
+  counter #(12) sentCounter (.en(sent_count_en), .clear(sent_count_clear), .q(sent_count),
+                              .d(12'd0), .clock(clock), .reset(reset));
 
   /******************************************************************/
   /*                      Producer FSM                              */
@@ -142,7 +121,7 @@ logic [62:0][2:0] P_ARR;
     load_count_en = 0; load_count_clear = 1;
     loaded = 0;
     sent_count_en = 0; sent_count_clear = 0;
-    toggle_en = 0; toggle_clear = 0;
+    toggle_en = 1; toggle_clear = 0;
 
     case (currstate)
       RESET: begin 
@@ -157,15 +136,14 @@ logic [62:0][2:0] P_ARR;
       /******************************************************************/
     
       IDLE: begin
-        if (ready_to_load && sent_count == 13'd0) begin  // only load if not already done 
+        if (ready_to_load && sent_count == 12'd0) begin  // only load if not already done 
           nextstate = LOAD;
-          toggle_en = 1; toggle_clear = 0;
           // tell neopixel to use these values 
           load_color = 1; 
           load_count_en = 1; load_count_clear = 0;
 
           pixel_index = P_ARR[hue_count];
-          color_index = P_ARR[hue_count]; // (toggle == 2'b11)?  2'b00 : toggle;
+          color_index =  (toggle == 2'b11)?  2'b00 : toggle;  
           color_level = C_ARR[hue_count];
         end else if (ready_to_send) begin 
           sent_count_clear = 0; sent_count_en = 1;
@@ -208,8 +186,7 @@ logic [62:0][2:0] P_ARR;
           load_count_en = 1; load_count_clear = 0; 
           
           pixel_index = P_ARR[hue_count];
-          color_index = P_ARR[hue_count]; // (toggle == 2'b11)?  2'b00 : toggle
-          //color_index = (toggle == 2'b11)? 2'b10 : toggle;// 0
+          color_index =  (toggle == 2'b11)?  2'b00 : toggle;
           color_level = C_ARR[hue_count];
         end
       end
