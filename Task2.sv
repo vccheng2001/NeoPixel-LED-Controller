@@ -57,10 +57,9 @@ module Task2
   /*                  Control number of loads                       */
   /******************************************************************/
 
-function [2:0] get_pixel_index
+function logic [2:0] get_pixel_index
     (input logic [4:0] syncedSW,
      input logic [2:0] pixel_to_load);
-
     if (pixel_to_load <= 3'd4) begin 
       if (syncedSW[pixel_to_load]) return pixel_to_load;
       else return 3'd0;
@@ -69,9 +68,8 @@ function [2:0] get_pixel_index
 endfunction
 
 
-function [2:0] get_color_index
+function logic [7:0] get_color_level
      (input logic [1:0] toggle);
-
     if (toggle == 2'b11 ) return 8'h20;
     else if (toggle == 2'b10) return 8'h10;
     else if (toggle == 2'b01) return 8'h05;
@@ -147,7 +145,7 @@ endfunction
 
           pixel_index = get_pixel_index(syncedSW, pixel_to_load);
           color_index = (toggle == 2'b11)? 2'b10 : toggle;
-          color_level = get_color_index(toggle);
+          color_level = get_color_level(toggle);
         end else if (ready_to_send) begin 
           sent_count_clear = 0; sent_count_en = 1;
           loaded = 0;
@@ -190,7 +188,7 @@ endfunction
 
           pixel_index = get_pixel_index(syncedSW, pixel_to_load);
           color_index = (toggle == 2'b11)? 2'b10 : toggle;
-          color_level = get_color_index(toggle);
+          color_level = get_color_level(toggle);
         end
       end
 
