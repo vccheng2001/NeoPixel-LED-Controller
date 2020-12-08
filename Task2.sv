@@ -31,11 +31,11 @@ module Task2
   /*              Control which pixel to load (0 - 4)                */
   /******************************************************************/
 
-  logic [1:0] pixel_to_load;
+  logic [2:0] pixel_to_load;
   logic pixel_en, pixel_clear;
 
-  counter #(2) pixelCounter (.en(pixel_en), .clear(pixel_clear), .q(pixel_to_load),
-                              .d(2'd0), .clock(clock), .reset(reset));
+  counter #(3) pixelCounter (.en(pixel_en), .clear(pixel_clear), .q(pixel_to_load),
+                              .d(3'd0), .clock(clock), .reset(reset));
 
 
 
@@ -72,11 +72,11 @@ module Task2
   /******************************************************************/
  
   // Num times the same LED vals were sent
-  logic [12:0] sent_count;
+  logic [2:0] sent_count;
   logic sent_count_en, sent_count_clear;
 
-  counter #(13) sentCounter (.en(sent_count_en), .clear(sent_count_clear), .q(sent_count),
-                              .d(13'd0), .clock(clock), .reset(reset));
+  counter #(3) sentCounter (.en(sent_count_en), .clear(sent_count_clear), .q(sent_count),
+                              .d(3'd0), .clock(clock), .reset(reset));
 
   /******************************************************************/
   /*                      Producer FSM                              */
@@ -115,16 +115,16 @@ module Task2
       /******************************************************************/
     
       IDLE: begin
-        if (ready_to_load && sent_count == 13'd0) begin  // only load if not already done 
+        if (ready_to_load && sent_count == 3'd0) begin  // only load if not already done 
           nextstate = LOAD;
           toggle_en = 1; toggle_clear = 0;
           // tell neopixel to use these values 
           load_color = 1; 
           load_count_en = 1; load_count_clear = 0;
 
-          pixel_index = pixel_to_load;
+          pixel_index = (pixel_to_load > 3'd3)? 3'd4 : pixel_to_load;
           color_index = (toggle == 2'b11)? 2'b10 : toggle;
-          color_level = (toggle == 2'b00)? 8'h00 : 8'h18; // 20 : 5
+          color_level = (toggle == 2'b00)? 8'h03 : 8'h18; // 20 : 5
         end else if (ready_to_send) begin 
           sent_count_clear = 0; sent_count_en = 1;
           loaded = 0;
@@ -165,9 +165,9 @@ module Task2
           load_color = 1; 
           load_count_en = 1; load_count_clear = 0; 
 
-          pixel_index = pixel_to_load;
+          pixel_index = (pixel_to_load > 3'd3)? 3'd4 : pixel_to_load;
           color_index = (toggle == 2'b11)? 2'b10 : toggle;
-          color_level = (toggle == 2'b11)? 8'h00 : 8'h18; // 20 : 5
+          color_level = (toggle == 2'b11)? 8'h03 : 8'h18; // 20 : 5
         end
       end
 
