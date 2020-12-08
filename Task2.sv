@@ -3,6 +3,7 @@
 module Task2
   (input  logic clock, reset, 
    // Handshaking signals 
+   input logic [4:0] syncedSW,
    input logic neo_data,
    input logic ready_to_load,
    input logic ready_to_send,
@@ -57,6 +58,30 @@ module Task2
   /******************************************************************/
   /*                  Control number of loads                       */
   /******************************************************************/
+
+function [2:0] get_pixel_index
+    (input logic [4:0] syncedSW,
+     input logic [2:0] pixel_to_load);
+
+    if (pixel_to_load <= 3'd4) begin 
+      if (syncedSW[pixel_to_load]) return pixel_to_load;
+      else return 3'd0;
+    end
+    else return 3'd4; 
+endfunction
+
+
+function [2:0] get_color_index
+     (input logic [1:0] toggle);
+
+    if (toggle == 2'b11 ) return 8'h20;
+    else if (toggle == 2'b10) return 8'h10;
+    else if (toggle == 2'b01) return 8'h05;
+    else return 8'h00;
+
+endfunction
+
+
  
  localparam MAX_NUM_LOADS = 8'd255;
 
@@ -122,9 +147,9 @@ module Task2
           load_color = 1; 
           load_count_en = 1; load_count_clear = 0;
 
-          pixel_index = (pixel_to_load > 3'd3)? 3'd4 : pixel_to_load;
+          pixel_index = get_pixel_index(syncedSW, pixel_to_load);
           color_index = (toggle == 2'b11)? 2'b10 : toggle;
-          color_level = (toggle == 2'b00)? 8'h03 : 8'h18; // 20 : 5
+          color_level = get_color_index(toggle);
         end else if (ready_to_send) begin 
           sent_count_clear = 0; sent_count_en = 1;
           loaded = 0;
@@ -165,9 +190,9 @@ module Task2
           load_color = 1; 
           load_count_en = 1; load_count_clear = 0; 
 
-          pixel_index = (pixel_to_load > 3'd3)? 3'd4 : pixel_to_load;
+          pixel_index = get_pixel_index(syncedSW, pixel_to_load);
           color_index = (toggle == 2'b11)? 2'b10 : toggle;
-          color_level = (toggle == 2'b11)? 8'h03 : 8'h18; // 20 : 5
+          color_level = get_color_index(toggle);
         end
       end
 

@@ -16,9 +16,10 @@ module chipInterface
 
    logic clock, reset;
 
-  logic syncedKEY0, syncedSW0, syncedSW1; 
+  logic syncedKEY0;
+  logic [4:0] syncedSW;
 
-  syncInputs si (.inKEY0(KEY[0]), .inSW0(SW[0]), .inSW1(SW[1]), .*);
+  syncInputs si (.inKEY0(KEY[0]), .inSW(SW), .*);
 
    assign clock = CLOCK_50;    // 50 MHz clock
    assign reset = ~syncedKEY0; // reset when KEY2 pressed 
