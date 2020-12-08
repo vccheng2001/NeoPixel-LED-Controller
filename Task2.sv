@@ -165,7 +165,7 @@ logic [62:0][2:0] P_ARR;
           load_count_en = 1; load_count_clear = 0;
 
           pixel_index = P_ARR[hue_count];
-          color_index = (toggle == 2'b11)?  2'b00 : toggle;
+          color_index = P_ARR[hue_count]; // (toggle == 2'b11)?  2'b00 : toggle;
           color_level = C_ARR[hue_count];
         end else if (ready_to_send) begin 
           sent_count_clear = 0; sent_count_en = 1;
@@ -208,7 +208,8 @@ logic [62:0][2:0] P_ARR;
           load_count_en = 1; load_count_clear = 0; 
           
           pixel_index = P_ARR[hue_count];
-          color_index = (toggle == 2'b11)? 2'b10 : toggle;// 0
+          color_index = P_ARR[hue_count]; // (toggle == 2'b11)?  2'b00 : toggle
+          //color_index = (toggle == 2'b11)? 2'b10 : toggle;// 0
           color_level = C_ARR[hue_count];
         end
       end
