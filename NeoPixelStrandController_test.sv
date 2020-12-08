@@ -19,11 +19,21 @@ class genLoadColor;
   constraint cl { 8'h00 <= color_level <= 8'hff; }
 
 
-
   function display_randomized_colors();
     $display("Randomized vals: Pixel Index= %d, Color Index=%d, Color Level=%h", pixel_index, color_index, color_level);
   endfunction
 endclass 
+
+/******************************************************************/
+//    Generate number of times to load_color 
+/*******************************************************************/
+// Num_loads: calls load_color 0 - 63 times 
+class genNumLoads;
+  rand logic [5:0] num_loads;
+   function display_num_loads();
+    $display("Load_color %d times", num_loads);
+  endfunction
+endclass
 
 
 
@@ -47,13 +57,14 @@ module NeoPixelStrandController_test;
     forever #0.5 clock = ~clock;
   end
 
-  // randomized class handle
+  // randomized class handles
   genLoadColor lc;
+  genNumLoads nl;
 
 /*******************************************************************/
 /*                      Reset inputs to dut                        */
 /*******************************************************************/ 
-  task doReset();
+  task do_reset();
     reset = 1; 
     load_color = 0; send_it = 0;
     color_index = 2'b00; pixel_index = 3'd0; color_level = 8'h00;
@@ -63,17 +74,19 @@ module NeoPixelStrandController_test;
   endtask
 
 /*****************************************************************(*/
-/*                   15 randomized loads, then send packet         */
+/*                   Randomized loads, then send packet         */
 /*******************************************************************/ 
 
   task loadSendTest();
    begin
     $display("********TESTING LOAD/SEND WITH RANDOMIZED VALUES ***********");
-    doReset();
-    // $monitor($time," Reset=%d, Curr=%s, Next=%s, LI=%d, SI=%d, RL=%b, RS=%b,NeoData=%b,DP=%h, SCnt=%d, CC=%d, W50=%d",
-    // reset, dut.currstate.name, dut.nextstate.name,load_color, send_it, ready_to_load, ready_to_send,dut.neo_data,dut.display_packet, dut.send_count, dut.cycle_count,dut.wait50_count);
+    do_reset();                              // Reset inputs to dut
+ 
+    nl = new();                              // Randomize number of loads
+    nl.randomize();
+    nl.display_num_loads();
 
-    repeat(15) begin                         // Load color 15 times  
+    repeat(nl.num_loads) begin               // Calls load_color <num_loads> times  
       load_color <= 1;
       lc = new();                            // Randomize fields to load color 
       lc.randomize();
@@ -83,8 +96,8 @@ module NeoPixelStrandController_test;
       lc.display_randomized_colors();
       @(posedge clock);
     end 
-    $display($time," Reset=%d, Curr=%s, Next=%s, LI=%d, SI=%d, RL=%b, RS=%b,NeoData=%b,DP=%h, SCnt=%d, CC=%d, W50=%d",
-    reset, dut.currstate.name, dut.nextstate.name,load_color, send_it, ready_to_load, ready_to_send,dut.neo_data,dut.display_packet, dut.send_count, dut.cycle_count,dut.wait50_count);
+
+    $display("Display packet to send: %h", dut.display_packet);
 
     load_color <= 0; send_it <= 1;            // Send 
     @(posedge clock);
@@ -96,38 +109,14 @@ module NeoPixelStrandController_test;
   endtask
 
 
-/*****************************************************************(*/
-/*               Send immediately without loading anything         */
-/*                      Display Packet should be all 0s            */
-/*******************************************************************/ 
-  task sendImmediatelyTest();
-   begin
-    $display("********TESTING IMMEDIATE SEND WITHOUT LOADING***********");
-    doReset();
- 
-    load_color <= 0; send_it <= 1;            // Send immediately  
-    @(posedge clock);
-    send_it <= 0;                             // De-assert send  
-    @(posedge clock);
-
-    // No load_color means display packet should be all zeros
-    assert(dut.display_packet == 120'd0) else $error("Display packet should be all zeros if no loads"); 
-
-    wait(dut.send_count == 120);              // Wait for all 120 bits to send 
-    wait(dut.wait50_count == 2500);           // Wait between display packets 
-   end
-  endtask
- 
-
 /******************************************************************/
 /*                          Runs all tests                        */
 /******************************************************************/
   initial begin
-    loadSendTest();         // Loads randomized colors 15 times, then sends once 
-    sendImmediatelyTest();  // Send immediately without loading 
-
-
-   #1 $finish;
+    repeat (10) begin 
+      loadSendTest();         // Loads randomized colors, then sends
+    end
+    #1 $finish;
   end
 
 /******************************************************************/
@@ -144,17 +133,64 @@ assert property (reset_loadsend_prop) else $error ("Upon reset, should be ready 
 assert property (reset_blank_packet_prop) else $error ("Upon reset, display packet should be blank");
 
 // Sending assertions
-assert property (send_blank_pixels_prop) else $error ("If immediately send, display packet should be zeros");
-assert property (send_one_prop) else $error ("Send zero bit timing off:  Neo_data should be high 18 cycles, then low 40");
-assert property (send_one_prop) else $error ("Send zero bit timing off:  Neo_data should be high 18 cycles, then low 40");
+assert property (send_blank_pixels_prop) else $error ("If immediately send, display packet should be zeros (blank pixels");
+assert property (send_all_120) else $error ("Did not send complete display packet");
 
 // Timing assertions
 assert property (wait_between_packets_prop) else $error ("Must wait at least 2500 clocks before sending another packet");
+assert property (send_one_prop) else $error ("Send zero bit timing off:  Neo_data should be high 18 cycles, then low 40");
+assert property (send_one_prop) else $error ("Send zero bit timing off:  Neo_data should be high 18 cycles, then low 40");
 
 // /******************************************************************/
 // /*                        SEQUENCES/PROPERTIES                     */
 // /******************************************************************/
 
+// Check that Red was loaded correctly (correct pixel index/color level)
+property load_R_prop;
+    logic [2:0] pi;       // Local vars: pixel index, color level 
+    logic [7:0] cl;     
+    @(posedge clock) (load_color && color_index == 2'b00, pi = pixel_index, cl = color_level) |=> (dut.R[pi] == cl); 
+endproperty: load_R_prop
+
+// Check that Green was loaded correctly (correct pixel index/color level)
+property load_G_prop;
+    logic [2:0] pi;        // Local vars: pixel index, color level 
+    logic [7:0] cl;      
+    @(posedge clock) (load_color && color_index == 2'b10, pi = pixel_index, cl = color_level) |=> (dut.G[pi] == cl); 
+endproperty: load_G_prop
+
+// Check that Blue was loaded correctly (correct pixel index/color level)
+property load_B_prop;
+    logic [2:0] pi;        // Local vars: pixel index, color level 
+    logic [7:0] cl;      
+    @(posedge clock) (load_color && color_index == 2'b01, pi = pixel_index, cl = color_level) |=> (dut.B[pi] == cl); 
+endproperty: load_B_prop
+
+
+// Resets to ready_to_load = 1, ready_to_send = 1
+property reset_loadsend_prop;
+  @(posedge clock) $rose(reset) |-> (ready_to_load && ready_to_send);
+endproperty
+
+// Resets to blank packet (all zeros)
+property reset_blank_packet_prop;
+  @(posedge clock) $rose(reset) |-> dut.display_packet == 120'd0;
+endproperty
+
+// Sequence: detect no loads before sending display packet 
+sequence no_load_before_send_seq;
+  (reset) ##1 (!load_color throughout send_it[->1]);
+endsequence 
+
+// If immediately send (detect no load_colors before send_it), should send blank display packet (all zeros) 
+property send_blank_pixels_prop;
+  @(posedge clock) no_load_before_send_seq |-> dut.display_packet == 120'd0;
+endproperty
+
+// Must send all 120 bits in display packet upon done sending 
+property send_all_120;
+  @(posedge clock) $rose(dut.done_send) |-> dut.send_count == 120;
+endproperty
 
 // Sending a one-bit: assert high for 35 cycles, low 30 cycles
 property send_one_prop;
@@ -171,48 +207,6 @@ property wait_between_packets_prop;
   @(posedge clock) $rose(dut.done_send) |-> dut.done_send ##[2500:$] $rose(dut.begin_send);
 endproperty
 
-// Resets to ready_to_load = 1, ready_to_send = 1
-property reset_loadsend_prop;
-  @(posedge clock) $rose(reset) |-> (ready_to_load && ready_to_send);
-endproperty
-
-// Resets to ready_to_load = 1, ready_to_send = 1
-property reset_blank_packet_prop;
-  @(posedge clock) $rose(reset) |-> dut.display_packet == 120'd0;
-endproperty
-
-// Sequence: no loads before sending display packet 
-sequence no_load_before_send_seq;
-  (reset) ##1 (!load_color throughout send_it[->1]);
-endsequence 
-
-// If detect no load before send, should send blank display packet (all zeros) 
-property send_blank_pixels_prop;
-  @(posedge clock) no_load_before_send_seq |-> dut.display_packet == 120'd0;
-endproperty
-
-// Check that Red was loaded correctly (correct pixel index/color level)
-property load_R_prop;
-    logic [2:0] pi;       // Local vars: pixel index, color level 
-    logic [7:0] cl;     
-    @(posedge clock) (load_color && color_index == 2'b00, pi = pixel_index, cl = color_level) |=> (dut.R[pi] == cl); 
-endproperty: load_R_prop
-
-
-// Check that Green was loaded correctly (correct pixel index/color level)
-property load_G_prop;
-    logic [2:0] pi;        // Local vars: pixel index, color level 
-    logic [7:0] cl;      
-    @(posedge clock) (load_color && color_index == 2'b10, pi = pixel_index, cl = color_level) |=> (dut.G[pi] == cl); 
-endproperty: load_G_prop
-
-
-// Check that Blue was loaded correctly (correct pixel index/color level)
-property load_B_prop;
-    logic [2:0] pi;        // Local vars: pixel index, color level 
-    logic [7:0] cl;      
-    @(posedge clock) (load_color && color_index == 2'b01, pi = pixel_index, cl = color_level) |=> (dut.B[pi] == cl); 
-endproperty: load_B_prop
 
 endmodule: NeoPixelStrandController_test
 
