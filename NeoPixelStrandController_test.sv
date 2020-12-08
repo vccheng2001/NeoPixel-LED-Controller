@@ -18,6 +18,8 @@ class genLoadColor;
   // brightness 0 to 255
   constraint cl { 8'h00 <= color_level <= 8'hff; }
 
+
+
   function display_randomized_colors();
     $display("Randomized vals: Pixel Index= %d, Color Index=%d, Color Level=%h", pixel_index, color_index, color_level);
   endfunction
@@ -125,7 +127,7 @@ module NeoPixelStrandController_test;
     sendImmediatelyTest();  // Send immediately without loading 
 
 
-   #1000 $finish;
+   #1 $finish;
   end
 
 /******************************************************************/
@@ -143,12 +145,31 @@ assert property (reset_blank_packet_prop) else $error ("Upon reset, display pack
 
 // Sending assertions
 assert property (send_blank_pixels_prop) else $error ("If immediately send, display packet should be zeros");
+assert property (send_one_prop) else $error ("Send zero bit timing off:  Neo_data should be high 18 cycles, then low 40");
+assert property (send_one_prop) else $error ("Send zero bit timing off:  Neo_data should be high 18 cycles, then low 40");
 
-
+// Timing assertions
+assert property (wait_between_packets_prop) else $error ("Must wait at least 2500 clocks before sending another packet");
 
 // /******************************************************************/
 // /*                        SEQUENCES/PROPERTIES                     */
 // /******************************************************************/
+
+
+// Sending a one-bit: assert high for 35 cycles, low 30 cycles
+property send_one_prop;
+  @(posedge clock) (dut.send_one) |-> neo_data[*35] ##1 !neo_data[*30];
+endproperty
+
+// Sending a one-bit: assert high for 18 cycles, low 40 cycles
+property send_zero_prop;
+  @(posedge clock) (dut.send_zero) |-> neo_data[*18] ##1 !neo_data[*40];
+endproperty
+
+// Must wait at least 50 microseconds (50/0.02 = 2500 clocks) until we can send a new packet 
+property wait_between_packets_prop;
+  @(posedge clock) $rose(dut.done_send) |-> dut.done_send ##[2500:$] $rose(dut.begin_send);
+endproperty
 
 // Resets to ready_to_load = 1, ready_to_send = 1
 property reset_loadsend_prop;

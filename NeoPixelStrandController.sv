@@ -92,6 +92,11 @@ module NeoPixelStrandController
 /*                  Producer FSM: Neo Controller                  */
 /*******************************************************************/
 
+  // Signal variables
+  logic begin_send; 
+  logic done_send;
+  logic send_one, send_zero;  // Sending one bit/zero bit
+
   // States
   enum logic [2:0] {IDLE_OR_LOAD, SEND, SEND1_1, SEND1_0, SEND0_1, SEND0_0, WAIT} currstate, nextstate;
 
@@ -104,6 +109,8 @@ module NeoPixelStrandController
   always_comb begin
     // default values 
     neo_data = 1'b0;  // should be 1'bx?
+
+    begin_send = 0; done_send = 0; send_one = 0; send_zero = 0; 
 
     wait50_en = 0; wait50_clear = 1;      // reset counters to 0
     cycle_en = 0; cycle_clear = 1;   
@@ -140,6 +147,7 @@ module NeoPixelStrandController
           default: begin end 
           endcase
         end else if (send_it) begin // start sending, can't send anymore 
+           begin_send = 1;
            nextstate = SEND;
            ready_to_send = 0;
         end else nextstate = IDLE_OR_LOAD; // do nothing 
@@ -149,6 +157,7 @@ module NeoPixelStrandController
       SEND: begin 
         // Iterated through all 120 pixels in display packet 
         if (send_count == NUM_BITS) begin 
+            done_send = 1;
             nextstate = WAIT; // wait 50 microseconds 
             ready_to_load = 1; ready_to_send = 0;
         end else begin 
@@ -157,6 +166,7 @@ module NeoPixelStrandController
             nextstate = SEND;
             // Send 1-bit
             if (display_packet[send_count] == 1) begin 
+              send_one = 1;
               nextstate = SEND1_1; 
               neo_data = 1; 
               cycle_en = 1; cycle_clear = 0;
@@ -164,6 +174,7 @@ module NeoPixelStrandController
 
             // Send 0-bit
             else if (display_packet[send_count] == 0) begin 
+              send_zero = 1;
               nextstate = SEND0_1;
               neo_data = 1;
               cycle_en = 1; cycle_clear = 0; 
