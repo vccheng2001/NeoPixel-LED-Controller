@@ -142,8 +142,7 @@ logic [62:0][2:0] P_ARR;
     load_count_en = 0; load_count_clear = 1;
     loaded = 0;
     sent_count_en = 0; sent_count_clear = 0;
-    toggle_en = 1; toggle_clear = 0;
-
+    toggle_en = 0; toggle_clear = 0;
 
     case (currstate)
       RESET: begin 
@@ -160,7 +159,7 @@ logic [62:0][2:0] P_ARR;
       IDLE: begin
         if (ready_to_load && sent_count == 13'd0) begin  // only load if not already done 
           nextstate = LOAD;
-          // toggle_en = 1; toggle_clear = 0;
+          toggle_en = 1; toggle_clear = 0;
           // tell neopixel to use these values 
           load_color = 1; 
           load_count_en = 1; load_count_clear = 0;
@@ -209,7 +208,7 @@ logic [62:0][2:0] P_ARR;
           load_count_en = 1; load_count_clear = 0; 
           
           pixel_index = P_ARR[hue_count];
-          color_index = (toggle == 2'b11)? 2'b10 : toggle;
+          color_index = (toggle == 2'b11)? 2'b10 : toggle;// 0
           color_level = C_ARR[hue_count];
         end
       end
