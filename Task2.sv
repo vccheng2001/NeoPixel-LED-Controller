@@ -41,10 +41,18 @@ module Task2
 
   logic [1:0] count;
   logic count_en, count_clear;
-  assign pixel_en = (count==3); 
 
   counter #(2) ccounter (.en(count_en), .clear(count_clear), .q(count),
                               .d(2'd0), .clock(clock), .reset(reset));
+
+ /******************************************************************/
+  /*              Control color toggle                              */
+  /******************************************************************/
+
+  logic [1:0] toggle;
+  logic toggle_en, toggle_clear;
+  counter #(2) toggleCounter (.en(toggle_en), .clear(toggle_clear), .q(toggle),
+                              .d(2'b0), .clock(clock), .reset(reset));
 
   /******************************************************************/
   /*                  Control number of loads                       */
@@ -64,11 +72,11 @@ module Task2
   /******************************************************************/
  
   // Num times the same LED vals were sent
-  logic [19:0] sent_count;
+  logic [12:0] sent_count;
   logic sent_count_en, sent_count_clear;
 
-  counter #(20) sentCounter (.en(sent_count_en), .clear(sent_count_clear), .q(sent_count),
-                              .d(20'd0), .clock(clock), .reset(reset));
+  counter #(13) sentCounter (.en(sent_count_en), .clear(sent_count_clear), .q(sent_count),
+                              .d(13'd0), .clock(clock), .reset(reset));
 
   /******************************************************************/
   /*                      Producer FSM                              */
@@ -77,14 +85,14 @@ module Task2
 
   // Next state logic 
   always_ff @(posedge clock, posedge reset)
-    if (reset) currstate <= IDLE;
+    if (reset) currstate <= RESET;
     else currstate <= nextstate;   
 
   logic loaded; 
   // FSM logic for states/output values
   always_comb begin
     count_en = 1; count_clear = 0;
-    pixel_clear = 0; // always vary values
+    pixel_en = 1; pixel_clear = 0; // always vary values
     hue_en = 1; hue_clear = 0;     // always vary hues 
     pixel_index = 3'd0; color_level = 8'h00; color_index = 2'b00;
 
@@ -92,11 +100,13 @@ module Task2
     load_count_en = 0; load_count_clear = 1;
     loaded = 0;
     sent_count_en = 0; sent_count_clear = 0;
+    toggle_en = 0; toggle_clear = 0;
 
 
     case (currstate)
       RESET: begin 
         nextstate = IDLE;
+        toggle_en = 0; toggle_clear = 1; 
         sent_count_en = 0; sent_count_clear = 1; 
       end 
 
@@ -105,15 +115,16 @@ module Task2
       /******************************************************************/
     
       IDLE: begin
-        if (ready_to_load && sent_count == 20'h0) begin  // only load if not already done 
+        if (ready_to_load && sent_count == 13'd0) begin  // only load if not already done 
           nextstate = LOAD;
+          toggle_en = 1; toggle_clear = 0;
           // tell neopixel to use these values 
           load_color = 1; 
           load_count_en = 1; load_count_clear = 0;
 
           pixel_index = pixel_to_load;
-          color_index = count;
-          color_level = hue_to_load;   
+          color_index = (toggle == 2'b11)? 2'b10 : toggle;
+          color_level = (toggle == 2'b00)? 8'h00 : 8'h18; // 20 : 5
         end else if (ready_to_send) begin 
           sent_count_clear = 0; sent_count_en = 1;
           loaded = 0;
@@ -155,8 +166,8 @@ module Task2
           load_count_en = 1; load_count_clear = 0; 
 
           pixel_index = pixel_to_load;
-          color_index = count;
-          color_level = hue_to_load; 
+          color_index = (toggle == 2'b11)? 2'b10 : toggle;
+          color_level = (toggle == 2'b11)? 8'h00 : 8'h18; // 20 : 5
         end
       end
 

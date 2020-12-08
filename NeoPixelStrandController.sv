@@ -98,11 +98,11 @@ module NeoPixelStrandController
   logic send_one, send_zero;  // Sending one bit/zero bit
 
   // States
-  enum logic [2:0] {IDLE_OR_LOAD, SEND, SEND1_1, SEND1_0, SEND0_1, SEND0_0, WAIT} currstate, nextstate;
+  enum logic [3:0] {RESET, IDLE_OR_LOAD, SEND, SEND1_1, SEND1_0, SEND0_1, SEND0_0, WAIT} currstate, nextstate;
 
   // Next state logic 
   always_ff @(posedge clock, posedge reset)
-    if (reset) currstate <= IDLE_OR_LOAD; 
+    if (reset) currstate <= RESET;
     else currstate <= nextstate;   
 
   // FSM logic for states/output values
@@ -124,6 +124,12 @@ module NeoPixelStrandController
     G_en = 5'b00000; G_clear = 5'b00000; G_in = 40'd0;
 
     case (currstate)
+      RESET: begin 
+          R_en = 5'b00000; R_clear = 5'b11111; R_in = 40'd0;
+          B_en = 5'b00000; B_clear = 5'b11111; B_in = 40'd0;
+          G_en = 5'b00000; G_clear = 5'b11111; G_in = 40'd0;
+          nextstate = IDLE_OR_LOAD;
+      end 
 
       IDLE_OR_LOAD: begin
         // default: can load and send 
