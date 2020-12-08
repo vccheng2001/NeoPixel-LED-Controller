@@ -38,8 +38,6 @@ module Task2
   counter #(3) pixelCounter (.en(pixel_en), .clear(pixel_clear), .q(pixel_to_load),
                               .d(3'd0), .clock(clock), .reset(reset));
 
-
-
   logic [1:0] count;
   logic count_en, count_clear;
 
@@ -97,11 +95,11 @@ endfunction
   /******************************************************************/
  
   // Num times the same LED vals were sent
-  logic [2:0] sent_count;
+  logic [12:0] sent_count;
   logic sent_count_en, sent_count_clear;
 
-  counter #(3) sentCounter (.en(sent_count_en), .clear(sent_count_clear), .q(sent_count),
-                              .d(3'd0), .clock(clock), .reset(reset));
+  counter #(13) sentCounter (.en(sent_count_en), .clear(sent_count_clear), .q(sent_count),
+                              .d(13'd0), .clock(clock), .reset(reset));
 
   /******************************************************************/
   /*                      Producer FSM                              */
@@ -140,7 +138,7 @@ endfunction
       /******************************************************************/
     
       IDLE: begin
-        if (ready_to_load && sent_count == 3'd0) begin  // only load if not already done 
+        if (ready_to_load && sent_count == 13'd0) begin  // only load if not already done 
           nextstate = LOAD;
           toggle_en = 1; toggle_clear = 0;
           // tell neopixel to use these values 

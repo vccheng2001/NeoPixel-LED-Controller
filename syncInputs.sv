@@ -18,7 +18,6 @@ register #(1) syncKEY0_0 (.q(syncedKEY0_temp), .d(inKEY0), .en(1'b1), .clock(clo
 register #(1) syncKEY0_1 (.q(syncedKEY0), .d(syncedKEY0_temp), .en(1'b1), .clock(clock), .clear(1'b0), .reset(1'b0));
 
  logic [4:0] syncedSW_temp;
- logic [4:0] syncedSW;
 
  genvar j; 
  generate
