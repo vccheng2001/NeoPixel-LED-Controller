@@ -2,10 +2,11 @@
 
 
 // Patterns:
-// Regular Neon (SW[0], ~SW[2])
-// Special Neon mode: Rainbow (SW[0], SW[2])
-// Christmas:   (~SW[0])
-// If SW[1], holds current color 
+// Regular Neon SW[1] && ~SW[2]
+//      *** Special Neon mode: Rainbow SW[1], SW[2]
+// Christmas:   SW[2] && ~SW[1] 
+// Else: One-at-a-time updates: SW[3]
+// If SW[0], holds current color 
 module Colors
   (input  logic clock, reset, 
    input logic [4:0] syncedSW,
@@ -25,30 +26,39 @@ module Colors
 
     // Change pattern parameters based on Switch 
    always_comb begin 
-       // Neon mode 
-       if (syncedSW[0]) begin 
-           // Regular Neon mode 
-           if (~syncedSW[2]) begin 
-                color_hues = {8'h16, 8'h05, 8'h10, 8'h02};
-                // SW[1] determines rate of blinking
-                max_num_loads = (syncedSW[1]) ? 7'd63 : 7'd15;
-           end else begin 
-           // Special Neon mode: Rainbow mode!!!
-                color_hues = {8'h18, 8'h10, 8'h05, 8'h00};
-                // SW[1] determines rate of blinking
-                max_num_loads = 7'd63;
-           end
+       // MODE 1: Neon Mode (Multiple LEDs update simultaneously
+       if (syncedSW[1]) begin 
            color_array = NEON_COLOR_ARRAY;
            pixel_array = NEON_PIXEL_ARRAY;
-       // Christmas 
-       end else begin 
+           // Regular Neon Mode: Multiple LED updates simultaneously
+           if (~syncedSW[2]) begin 
+                color_hues = {8'h16, 8'h05, 8'h10, 8'h02};
+                // SW[0] determines rate of blinking
+                max_num_loads = (syncedSW[0]) ? 7'd63 : 7'd15;
+           // RAINBOW MODE: Special mode if SW1 && SW2
+           end else begin 
+               color_hues = {8'h18, 8'h10, 8'h05, 8'h00};
+                // SW[0] determines rate of blinking
+                max_num_loads = 7'd63;
+           end 
+       end 
+       // MODE 2: Christmas blinking lights
+       else if (syncedSW[2] && ~syncedSW[1]) begin 
            // Red/Green 
            color_hues = {8'h20, 8'h10, 8'h05, 8'h00};
-           max_num_loads = (syncedSW[1]) ? 7'd63 : 7'd31; 
-           // SW[1] determines rate of blinking
+           max_num_loads = (syncedSW[0]) ? 7'd63 : 7'd31; 
+           // SW[0] determines rate of blinking
            color_array = XMAS_COLOR_ARRAY;
            pixel_array = XMAS_PIXEL_ARRAY;
        end
+       // Mode 3: One-LED-at-a-time updates
+       else begin 
+           color_hues = {8'h02,8'h02,8'h02,8'h15};
+           max_num_loads = (syncedSW[0]) ? 7'd63 : 7'd2; 
+           // SW[0] determines rate of blinking
+           color_array = NEON_COLOR_ARRAY;
+           pixel_array = XMAS_PIXEL_ARRAY;
+       end 
    end
 
  // Neon color array: encodes color index
