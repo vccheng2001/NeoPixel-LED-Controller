@@ -49,6 +49,7 @@ module NeoPixelStrandController_test;
 
    logic load_color, send_it;         // Signals 
    logic neo_data, ready_to_load, ready_to_send;
+   logic begin_send, done_send, done_wait;
 
   // Instantiate dut
   NeoPixelStrandController dut (.*);
