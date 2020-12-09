@@ -19,15 +19,18 @@ module chipInterface
   logic syncedKEY0;
   logic [4:0] syncedSW;
 
-  syncInputs si (.inKEY0(KEY[0]), .inSW(SW), .*);
+  logic [62:0][7:0] color_array;
+  logic [62:0][2:0] pixel_array;
+  logic [6:0] max_num_loads;
+
+   syncInputs si (.inKEY0(KEY[0]), .inSW(SW), .*);
 
    assign clock = CLOCK_50;    // 50 MHz clock
    assign reset = ~syncedKEY0; // reset when KEY2 pressed 
    assign GPIO_0[1] = neo_data;
-
-  //  assign color_index = {syncedSW1, syncedSW0};
    
    NeoPixelStrandController np (.*);
    Task2 t2 (.*);
+   Colors c (.*);
    
 endmodule: chipInterface 

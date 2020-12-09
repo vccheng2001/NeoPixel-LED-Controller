@@ -15,6 +15,10 @@ module Task2
    output logic [1:0] color_index,
    output logic [7:0] color_level,
 
+   input logic [62:0][7:0] color_array,
+   input logic [62:0][2:0] pixel_array,
+   input logic [6:0] max_num_loads,
+
    output logic load_color,
    output logic send_it);
 
@@ -27,27 +31,6 @@ module Task2
 
   counter #(6) hueCounter (.en(hue_en), .clear(hue_clear), .q(hue_count),
                               .d(6'd0), .clock(clock), .reset(reset));
-
-
-  localparam C0 = 8'h02;
-  localparam C1 = 8'h05;
-  localparam C2 = 8'h10;
-  localparam C3 = 8'h16;
-
-  logic [62:0][7:0] C_ARR;
-  logic [62:0][2:0] P_ARR;
-      
-  assign C_ARR =  {C0,C1,C2,C3,C3,C2,C1,C0,C0,C1,C2,C3,C3,C2,C1,C0,C0,C1,C2,C3,
-                    C0,C2,C1,C3,C3,C1,C2,C0,C0,C2,C1,C3,C3,C1,C2,C0,C0,C2,C1,C3,
-                    C0,C0,C1,C1,C2,C2,C3,C3,C3,C3,C2,C2,C1,C1,C0,C0,C0,C0,C1,C1,
-                    C2,C2,C3};
-                          
-  assign P_ARR = {3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4, // 15
-                  3'd4,3'd4,3'd4,3'd3,3'd3,3'd3,3'd2,3'd2,3'd2,3'd1,3'd1,3'd1,3'd0,3'd0,3'd0,
-                  3'd3,3'd3,3'd3,3'd2,3'd2,3'd2,3'd1,3'd1,3'd1,3'd0,3'd0,3'd0,3'd4,3'd4,3'd4,
-                  3'd2,3'd2,3'd2,3'd1,3'd1,3'd1,3'd0,3'd0,3'd0,3'd4,3'd4,3'd4,3'd3,3'd3,3'd3,
-                  3'd1,3'd1,3'd1};
-  
 
 
   /******************************************************************/
@@ -78,8 +61,7 @@ module Task2
   /******************************************************************/
   /*                  Control number of loads                       */
   /******************************************************************/
- 
- localparam MAX_NUM_LOADS = 15;
+
 
   // Number of loads
   logic [6:0] load_count;
@@ -142,9 +124,9 @@ module Task2
           load_color = 1; 
           load_count_en = 1; load_count_clear = 0;
 
-          pixel_index = P_ARR[hue_count];
+          pixel_index = pixel_array[hue_count];
           color_index =  (toggle == 2'b11)?  2'b00 : toggle;  
-          color_level = C_ARR[hue_count];
+          color_level = color_array[hue_count];
         end else if (ready_to_send) begin 
           sent_count_clear = 0; sent_count_en = 1;
           loaded = 0;
@@ -172,22 +154,21 @@ module Task2
  
       LOAD: begin
 
-        if (!ready_to_load || load_count == MAX_NUM_LOADS) begin 
+        if (!ready_to_load || load_count == max_num_loads) begin 
           nextstate = IDLE2;
           load_count_clear = 1; load_count_en = 0;
           load_color = 0;
           loaded = 1;
         end 
-        // keep loading until MAX_NUM_LOADS
         else begin 
           nextstate = LOAD;
 
           load_color = 1; 
           load_count_en = 1; load_count_clear = 0; 
           
-          pixel_index = P_ARR[hue_count];
-          color_index =  (toggle == 2'b11)?  2'b00 : toggle;
-          color_level = C_ARR[hue_count];
+          pixel_index = pixel_array[hue_count];
+          color_index =  (toggle == 2'b11)?  2'b00 : toggle;  
+          color_level = color_array[hue_count];
         end
       end
 
