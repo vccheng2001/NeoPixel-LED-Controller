@@ -1,56 +1,44 @@
 `default_nettype none
 
 
-
+// Hardware thread, tells NeoPixelController to load/send 
 module Task2
   (input  logic clock, reset, 
    // Handshaking signals 
-   input logic [4:0] syncedSW,
-   input logic neo_data,
-   input logic ready_to_load,
-   input logic ready_to_send,
-   input logic begin_send, done_send, done_wait,
-   
-   output logic [2:0] pixel_index,      
-   output logic [1:0] color_index,
-   output logic [7:0] color_level,
+   input logic [4:0] syncedSW, // FPGA Switches  
 
+   // Inputs from Neo controller 
+   input logic neo_data,
+   input logic ready_to_load, ready_to_send,
+   input logic begin_send, done_send, done_wait,
+
+   // Inputs from color module: select different patterns based on Switches
    input logic [62:0][7:0] color_array,
    input logic [62:0][2:0] pixel_array,
    input logic [6:0] max_num_loads,
 
+   // Outputs: tell controller which color parameters to load
+   output logic [2:0] pixel_index,      
+   output logic [1:0] color_index,
+   output logic [7:0] color_level,
+
+   // Signal variables to controller 
    output logic load_color,
    output logic send_it);
 
   /******************************************************************/
-  /*                  Control color level (0-32 )                   */
+  /*      Counter to iterate through color arrays                   */
   /******************************************************************/
 
-  logic [5:0] hue_count;
-  logic hue_en, hue_clear;
+  logic [5:0] array_count;
+  logic array_en, array_clear;
 
-  counter #(6) hueCounter (.en(hue_en), .clear(hue_clear), .q(hue_count),
+  counter #(6) arrayCounter (.en(array_en), .clear(array_clear), .q(array_count),
                               .d(6'd0), .clock(clock), .reset(reset));
 
 
-  /******************************************************************/
-  /*              Control which pixel to load (0 - 4)                */
-  /******************************************************************/
-
-  logic [2:0] pixel_to_load;
-  logic pixel_en, pixel_clear;
-
-  counter #(3) pixelCounter (.en(pixel_en), .clear(pixel_clear), .q(pixel_to_load),
-                              .d(3'd0), .clock(clock), .reset(reset));
-
-  logic [1:0] count;
-  logic count_en, count_clear;
-
-  counter #(2) ccounter (.en(count_en), .clear(count_clear), .q(count),
-                              .d(2'd0), .clock(clock), .reset(reset));
-
  /******************************************************************/
-  /*              Control color toggle                              */
+  /*                      Control color index toggle               */
   /******************************************************************/
 
   logic [1:0] toggle;
@@ -59,10 +47,8 @@ module Task2
                               .d(2'b0), .clock(clock), .reset(reset));
 
   /******************************************************************/
-  /*                  Control number of loads                       */
+  /*          Count number of loads (up to max_num_loads)           */
   /******************************************************************/
-
-
   // Number of loads
   logic [6:0] load_count;
   logic load_count_en, load_count_clear;
@@ -71,7 +57,7 @@ module Task2
                               .d(7'd0), .clock(clock), .reset(reset));
 
  /******************************************************************/
-  /*                  Control number of sends                       */
+  /*          Counts number of sends of the same LED packet           */
   /******************************************************************/
  
   // Num times the same LED vals were sent
@@ -84,32 +70,38 @@ module Task2
   /******************************************************************/
   /*                      Producer FSM                              */
   /******************************************************************/
-  enum logic [2:0] {RESET, IDLE,IDLE2, LOAD, SEND} currstate, nextstate;
+  enum logic [2:0] {RESET, IDLE, LOAD, DONE_LOAD, SEND} currstate, nextstate;
 
   // Next state logic 
   always_ff @(posedge clock, posedge reset)
     if (reset) currstate <= RESET;
     else currstate <= nextstate;   
 
+  // Indicates display packet has been loaded with colors 
   logic loaded; 
+
   // FSM logic for states/output values
   always_comb begin
-    count_en = 1; count_clear = 0;
-    pixel_en = 1; pixel_clear = 0; // always vary values
-    hue_en = 1; hue_clear = 0;     // always vary hues 
+    array_en = 1; array_clear = 0;          // Iterate through arrays 
+    
+    // Default color parameter values 
     pixel_index = 3'd0; color_level = 8'h00; color_index = 2'b00;
 
-    load_color = 0; send_it = 0; 
-    load_count_en = 0; load_count_clear = 1;
-    loaded = 0;
+    load_color = 0; send_it = 0;             // Input to neo controller 
+
+    loaded = 0;                             // Initially nothing loaded 
+
+    load_count_en = 0; load_count_clear = 1; // Counter variables 
     sent_count_en = 0; sent_count_clear = 0;
     toggle_en = 1; toggle_clear = 0;
 
     case (currstate)
+
+      // Reset: clear counters 
       RESET: begin 
         nextstate = IDLE;
         toggle_en = 0; toggle_clear = 1; 
-        hue_clear = 1; hue_en = 0;
+        array_clear = 1; array_en = 0;
         sent_count_en = 0; sent_count_clear = 1; 
       end 
 
@@ -118,66 +110,83 @@ module Task2
       /******************************************************************/
     
       IDLE: begin
-        if (ready_to_load && sent_count == 12'd0) begin  // only load if not already done 
+        // Tell controller to load new values every 12'fff sends 
+        if (ready_to_load && sent_count == 12'd0) begin  
+          // Assert load_color 
           nextstate = LOAD;
-          // tell neopixel to use these values 
           load_color = 1; 
+
+          // Increment load count 
           load_count_en = 1; load_count_clear = 0;
 
-          pixel_index = pixel_array[hue_count];
+          // Set color parameters 
+          pixel_index = pixel_array[array_count];
           color_index =  (toggle == 2'b11)?  2'b00 : toggle;  
-          color_level = color_array[hue_count];
+          color_level = color_array[array_count];
+
+        // If can't load but can't send 
         end else if (ready_to_send) begin 
-          sent_count_clear = 0; sent_count_en = 1;
-          loaded = 0;
+          // Assert send_it 
           nextstate = SEND;
           send_it = 1; 
+
+           // Deassert loaded 
+          sent_count_clear = 0; sent_count_en = 1;
+          loaded = 0; 
         end else nextstate = IDLE;
   
       end
 
-      IDLE2: begin
-        loaded = 1; 
-        if (ready_to_send) begin 
-          sent_count_clear = 0; sent_count_en = 1;  
-          loaded = 0;
-          nextstate = SEND;
-          send_it = 1; 
-        end else nextstate = IDLE2;
-  
-      end
-
 
     /******************************************************************/
-    /*                 Load MAX_LOAD times                            */
+    /*             Load colors up to <max_num_loads> times            */
     /******************************************************************/
  
       LOAD: begin
-
+        // Only stop if <num_max_loads> or no longer ready_to_load
         if (!ready_to_load || load_count == max_num_loads) begin 
-          nextstate = IDLE2;
+          nextstate = DONE_LOAD;
           load_count_clear = 1; load_count_en = 0;
           load_color = 0;
           loaded = 1;
         end 
+        // Else continue loading 
         else begin 
           nextstate = LOAD;
-
+          // Assert load_color 
           load_color = 1; 
+          // Increment load_count
           load_count_en = 1; load_count_clear = 0; 
           
-          pixel_index = pixel_array[hue_count];
+          // Set color parameters 
+          pixel_index = pixel_array[array_count];
           color_index =  (toggle == 2'b11)?  2'b00 : toggle;  
-          color_level = color_array[hue_count];
+          color_level = color_array[array_count];
         end
+      end
+
+      
+      /******************************************************************/
+      /*               Done load, wait for send                         */
+      /******************************************************************/
+
+      DONE_LOAD: begin
+        loaded = 1; 
+        // Go to Send state 
+        if (ready_to_send) begin 
+          nextstate = SEND;
+          send_it = 1; 
+          sent_count_clear = 0; sent_count_en = 1;  
+          loaded = 0;
+        end else nextstate = DONE_LOAD;
+  
       end
 
       /******************************************************************/
       /*                 Wait while sending                             */
       /******************************************************************/
- 
 
-      SEND: begin // wait for a ready_to_load signal
+      SEND: begin // wait for packet to finish sending + waited 50 microseconds
         if (!done_wait) nextstate = SEND;
         else nextstate = IDLE;
       end

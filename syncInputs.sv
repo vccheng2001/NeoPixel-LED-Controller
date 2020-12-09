@@ -10,14 +10,17 @@ module syncInputs
  output logic [4:0] syncedSW, output logic syncedKEY0);
 
   
-// Flip flop synchronizers for KEY[0], SW[0], SW[1] to reduce metastability
+// Flip flop synchronizers for KEY[0] to reduce metastability
+// KEY0 is used as a reset 
 
 logic syncedKEY0_temp;
-
 register #(1) syncKEY0_0 (.q(syncedKEY0_temp), .d(inKEY0), .en(1'b1), .clock(clock), .clear(1'b0), .reset(1'b0));
 register #(1) syncKEY0_1 (.q(syncedKEY0), .d(syncedKEY0_temp), .en(1'b1), .clock(clock), .clear(1'b0), .reset(1'b0));
 
- logic [4:0] syncedSW_temp;
+// Flip flop synchronizers for SW Switches to reduce metastability
+// SW0,1,2 used to determine color patterns/motions 
+
+logic [4:0] syncedSW_temp;
 
  genvar j; 
  generate

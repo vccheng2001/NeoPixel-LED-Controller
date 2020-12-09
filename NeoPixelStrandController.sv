@@ -107,9 +107,10 @@ module NeoPixelStrandController
 
   // FSM logic for states/output values
   always_comb begin
-    // default values 
-    neo_data = 1'b0;  // should be 1'bx?
+    // Default neo_data when not sending
+    neo_data = 1'b0;  
 
+    // Signal variables to hardware thread Task2
     begin_send = 0; done_send = 0; send_one = 0; send_zero = 0; done_wait = 0;
 
     wait50_en = 0; wait50_clear = 1;      // reset counters to 0
@@ -124,6 +125,7 @@ module NeoPixelStrandController
     G_en = 5'b00000; G_clear = 5'b00000; G_in = 40'd0;
 
     case (currstate)
+      // Reset: Clear RGB
       RESET: begin 
           R_en = 5'b00000; R_clear = 5'b11111; R_in = 40'd0;
           B_en = 5'b00000; B_clear = 5'b11111; B_in = 40'd0;
@@ -131,11 +133,13 @@ module NeoPixelStrandController
           nextstate = IDLE_OR_LOAD;
       end 
 
+      // Loading 
       IDLE_OR_LOAD: begin
-        // default: can load and send 
+        // Can load and send 
         ready_to_load = 1; ready_to_send = 1;
 
-        if (load_color) begin       // load color
+        // Load Color 
+        if (load_color) begin      
            nextstate = IDLE_OR_LOAD;
            case (color_index)
             2'b00: begin // red
@@ -152,23 +156,28 @@ module NeoPixelStrandController
             end 
           default: begin end 
           endcase
-        end else if (send_it) begin // start sending, can't send anymore 
+        // Start Sending 
+        end else if (send_it) begin 
            begin_send = 1;
            nextstate = SEND;
-        end else nextstate = IDLE_OR_LOAD; // do nothing 
+        // Stay Idle 
+        end else nextstate = IDLE_OR_LOAD; 
       end
 
       // Send display packet of 120 bits 
       SEND: begin 
-        // Iterated through all 120 pixels in display packet 
+        // Sent all 120 pixels in display packet 
         if (send_count == NUM_BITS) begin 
             done_send = 1;
             nextstate = WAIT; // wait 50 microseconds 
             ready_to_load = 1; ready_to_send = 0;
+        
+        // Still sending 
         end else begin 
             send_en = 0; send_clear = 0; 
             ready_to_load = 0; ready_to_send = 0; 
             nextstate = SEND;
+
             // Send 1-bit
             if (display_packet[send_count] == 1) begin 
               send_one = 1;
@@ -184,6 +193,7 @@ module NeoPixelStrandController
               neo_data = 1;
               cycle_en = 1; cycle_clear = 0; 
             end 
+
         end
       end
 
@@ -192,26 +202,32 @@ module NeoPixelStrandController
     /*       SEND A ONE-BIT: 35 cycles high, 30 cycles low            */
     /******************************************************************/
         
+    // 35 highs 
     SEND1_1: begin 
         ready_to_load = 0; ready_to_send = 0;
-        send_en = 0; send_clear = 0; // maintain bit (out of 120) being sent 
+        send_en = 0; send_clear = 0; 
         cycle_en = 1; cycle_clear = 0;
     
+        // If done sending 30 high 
         if (cycle_count == BIT_1_HIGH) begin 
-          neo_data = 0; // send first 0, done high 
+          neo_data = 0; 
           nextstate = SEND1_0;
+        // Else not done sending 30 high 
         end else begin 
-          neo_data = 1; // send ones 
+          neo_data = 1; 
           nextstate = SEND1_1; 
         end 
      end 
-
+     
+     // 30 lows 
      SEND1_0: begin 
+        // If done sending 30 lows 
         if (cycle_count == BIT_1_HIGH + BIT_1_LOW - 1) begin 
           neo_data = 0; // send last 0 
           nextstate = SEND;
           cycle_en = 0; cycle_clear = 1; 
           send_en = 1; send_clear = 0; 
+        // Else keep sending lows 
         end else begin 
           neo_data = 0;
           nextstate = SEND1_0;
@@ -223,27 +239,33 @@ module NeoPixelStrandController
     /******************************************************************/
     /*       SEND A ZERO-BIT: 18 cycles high, 40 cycles low            */
     /******************************************************************/
-
+    
+    // Send one-bit: assert high 18 cycles, low 40 
     SEND0_1: begin 
         ready_to_load = 0; ready_to_send = 0;
-        send_en = 0; send_clear = 0; // maintain bit (out of 120) being sent 
+        send_en = 0; send_clear = 0;
         cycle_en = 1; cycle_clear = 0;
     
+        // Done 18 highs 
         if (cycle_count == BIT_0_HIGH) begin 
-          neo_data = 0; // send first 0, done high 
+          neo_data = 0; // send first 0
           nextstate = SEND0_0;
+        // Else keep sending 1s
         end else begin 
           neo_data = 1; // send ones 
           nextstate = SEND0_1; 
         end 
      end 
 
+     // Send 40 lows 
      SEND0_0: begin 
+        // Done 40 lows 
         if (cycle_count == BIT_0_HIGH + BIT_0_LOW - 1) begin 
           nextstate = SEND;
           neo_data = 0; // send last 0 
           cycle_en = 0; cycle_clear = 1; 
           send_en = 1; send_clear = 0; 
+        // Else keep sending 0s 
         end else begin
           nextstate = SEND0_0; 
           neo_data = 0;
@@ -256,6 +278,7 @@ module NeoPixelStrandController
     /*       Wait 50 microseconds between display packets             */
     /******************************************************************/
 
+      // Can load while waiting 
       WAIT: begin 
         if (load_color) begin 
           case (color_index)
@@ -275,12 +298,14 @@ module NeoPixelStrandController
           endcase
         end 
         ready_to_load = 1;
-        // If waited 50 microseconds 
+
+        // If waited 50 microseconds, return to IDLE_OR_LOAD
         if (wait50_count == 12'd2500) begin 
           done_wait = 1;
             nextstate = IDLE_OR_LOAD;
             wait50_en = 0; wait50_clear = 1;
             ready_to_send = 1;
+        // Else keep waiting 
         end else begin 
             nextstate = WAIT;
             wait50_en = 1; wait50_clear = 0;

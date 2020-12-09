@@ -15,6 +15,7 @@ module counter
 
 endmodule: counter
 
+// Register, adapted from 18-240 library.sv 
 module register
   #(parameter WIDTH=8)
   (input logic [WIDTH-1:0] d,
