@@ -34,7 +34,7 @@ module Colors
                 max_num_loads = (syncedSW[1]) ? 7'd63 : 7'd15;
            end else begin 
            // Special Neon mode: Rainbow mode!!!
-                color_hues = {8'h20, 8'h10, 8'h05, 8'h00};
+                color_hues = {8'h18, 8'h10, 8'h05, 8'h00};
                 // SW[1] determines rate of blinking
                 max_num_loads = 7'd63;
            end
