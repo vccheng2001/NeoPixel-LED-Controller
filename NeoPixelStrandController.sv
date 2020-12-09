@@ -25,9 +25,12 @@ module NeoPixelStrandController
  genvar j; 
  generate
  for (j = 0; j < 5; j++) begin: rgb
-    register #(8) green (.q(G[j]), .d(G_in[j]), .en(G_en[j]), .clear(G_clear[j]), .clock(clock), .reset(reset));
-    register #(8) red (.q(R[j]), .d(R_in[j]), .en(R_en[j]), .clear(R_clear[j]), .clock(clock), .reset(reset));
-    register #(8) blue (.q(B[j]), .d(B_in[j]), .en(B_en[j]), .clear(B_clear[j]), .clock(clock), .reset(reset));
+    register #(8) green (.q(G[j]), .d(G_in[j]), .en(G_en[j]),
+           .clear(G_clear[j]), .clock(clock), .reset(reset));
+    register #(8) red (.q(R[j]), .d(R_in[j]), .en(R_en[j]), 
+          .clear(R_clear[j]), .clock(clock), .reset(reset));
+    register #(8) blue (.q(B[j]), .d(B_in[j]), .en(B_en[j]),
+           .clear(B_clear[j]), .clock(clock), .reset(reset));
  end
  endgenerate
 
@@ -98,7 +101,8 @@ module NeoPixelStrandController
   logic send_one, send_zero;  // Sending one bit/zero bit
 
   // States
-  enum logic [3:0] {RESET, IDLE_OR_LOAD, SEND, SEND1_1, SEND1_0, SEND0_1, SEND0_0, WAIT} currstate, nextstate;
+  enum logic [3:0] {RESET, IDLE_OR_LOAD, SEND, SEND1_1, SEND1_0, SEND0_1,
+                                     SEND0_0, WAIT} currstate, nextstate;
 
   // Next state logic 
   always_ff @(posedge clock, posedge reset)

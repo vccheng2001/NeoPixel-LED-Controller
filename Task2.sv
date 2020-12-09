@@ -53,8 +53,8 @@ module Task2
   logic [6:0] load_count;
   logic load_count_en, load_count_clear;
 
-  counter #(7) loadCounter (.en(load_count_en), .clear(load_count_clear), .q(load_count),
-                              .d(7'd0), .clock(clock), .reset(reset));
+  counter #(7) loadCounter (.en(load_count_en), .clear(load_count_clear),
+             .q(load_count), .d(7'd0), .clock(clock), .reset(reset));
 
  /******************************************************************/
   /*          Counts number of sends of the same LED packet           */
@@ -64,8 +64,8 @@ module Task2
   logic [11:0] sent_count;
   logic sent_count_en, sent_count_clear;
 
-  counter #(12) sentCounter (.en(sent_count_en), .clear(sent_count_clear), .q(sent_count),
-                              .d(12'd0), .clock(clock), .reset(reset));
+  counter #(12) sentCounter (.en(sent_count_en), .clear(sent_count_clear),
+               .q(sent_count),.d(12'd0), .clock(clock), .reset(reset));
 
   /******************************************************************/
   /*                      Producer FSM                              */
