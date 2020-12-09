@@ -131,6 +131,7 @@ module NeoPixelStrandController
           B_en = 5'b00000; B_clear = 5'b11111; B_in = 40'd0;
           G_en = 5'b00000; G_clear = 5'b11111; G_in = 40'd0;
           nextstate = IDLE_OR_LOAD;
+          ready_to_load = 1; ready_to_send = 1;
       end 
 
       // Loading 
