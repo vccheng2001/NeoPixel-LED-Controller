@@ -1,5 +1,16 @@
 `default_nettype none
-
+// 4 different modes based on Switches/keys
+//*********************************************************
+// 1. Regular LED mode
+//      One random color shows up at a time (no SW activated)
+// 2. Neon SW[1] && ~SW[2]
+//      Alternates between several neon displays, updates simultaneously 
+// 3. Rainbow display: SW[1] &&  SW[2]
+//      Fixed rainbow display
+// 4. Christmas Mode: SW[2] && ~SW[1] 
+//      Red/green on every other pixel, back and forth blinking
+// If SW[0], holds current color display
+//*********************************************************
 module chipInterface
   (input  logic CLOCK_50,
    input  logic [9:0] SW,       // Switches control color patterns

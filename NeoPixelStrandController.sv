@@ -1,6 +1,7 @@
 `default_nettype none
 
 // NeoPixel LED Controller 
+// Loads/Sends given signals from Task2 Hardware Thread 
 module NeoPixelStrandController
  #(parameter NUM_PIXELS = 5)
  (input logic [7:0] color_level,

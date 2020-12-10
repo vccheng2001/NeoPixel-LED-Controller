@@ -1,7 +1,9 @@
 `default_nettype none
 
 
-// Hardware thread, tells NeoPixelController to load/send 
+// Hardware thread, tells NeoPixelController to load/send
+// Color Module tells it which color/pattern to use
+// Diff patterns: Neon, Christmas, Rainbow, Regular 
 module Task2
   (input  logic clock, reset, 
    // Handshaking signals 

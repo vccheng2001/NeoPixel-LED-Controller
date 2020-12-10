@@ -1,12 +1,7 @@
 `default_nettype none
 
-
-// Patterns:
-// Regular Neon SW[1] && ~SW[2]
-//      *** Special Neon mode: Rainbow SW[1], SW[2]
-// Christmas:   SW[2] && ~SW[1] 
-// Else: One-at-a-time updates: SW[3]
-// If SW[0], holds current color 
+// Tells Task2 which colors/patterns to use, based on switches and keys
+// Different LED display modes: Neon, Rainbow, Christmas, Regular 
 module Colors
   (input  logic clock, reset, 
    input logic [4:0] syncedSW,
@@ -39,7 +34,7 @@ module Colors
            end else begin 
                color_hues = {8'h18, 8'h10, 8'h05, 8'h00};
                 // SW[0] determines rate of blinking
-                max_num_loads = 7'd63;
+                max_num_loads = (syncedSW[0]) ? 7'd63 : 7'd31;
            end 
        end 
        // MODE 2: Christmas blinking lights
