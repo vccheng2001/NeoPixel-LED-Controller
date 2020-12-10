@@ -150,7 +150,7 @@ assert property (reset_blank_packet_prop)
 
 // Sending assertions
 assert property (send_blank_pixels_prop)
-   else $error ("If immediately send without load, display pkt should be blank");
+   else $error ("If immediately send without load, display pkt must be blank");
 assert property (send_all_120) 
    else $error ("Did not send complete display packet of 120 bits");
 

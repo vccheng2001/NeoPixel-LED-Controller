@@ -57,31 +57,38 @@ module Colors
    end
 
  // Neon color array: encodes color index
- assign NEON_COLOR_ARRAY = {    C0, C1, C0, C1, C1, C3, C2, C0, C3, C2, C3, C0, C1, C3, C1, 
-                                C1, C2, C3, C2, C0, C2, C2, C0, C3, C1, C0, C0, C0, C3, C2, 
-                                C0, C3, C1, C2, C3, C1, C1, C2, C2, C0, C2, C1, C3, C2, C0,
-                                C0, C1, C0, C1, C1, C0, C0, C1, C3, C3, C3, C2, C2, C0, C1,
-                                C0, C3, C1, C2, C2, C0, C1, C1, C3, C2, C0, C3, C0, C2, C3,
-                                C1, C0, C3, C0, C1, C2, C2, C0, C3, C1, C0, C0, C0, C3, C2,
-                                C0, C3, C1, C2, C3, C1, C1, C2, C2, C0, C1, C2, C3};
+ assign NEON_COLOR_ARRAY =
+  { C0, C1, C0, C1, C1, C3, C2, C0, C3, C2, C3, C0, C1, C3, C1, 
+    C1, C2, C3, C2, C0, C2, C2, C0, C3, C1, C0, C0, C0, C3, C2, 
+    C0, C3, C1, C2, C3, C1, C1, C2, C2, C0, C2, C1, C3, C2, C0,
+    C0, C1, C0, C1, C1, C0, C0, C1, C3, C3, C3, C2, C2, C0, C1,
+    C0, C3, C1, C2, C2, C0, C1, C1, C3, C2, C0, C3, C0, C2, C3,
+    C1, C0, C3, C0, C1, C2, C2, C0, C3, C1, C0, C0, C0, C3, C2,
+    C0, C3, C1, C2, C3, C1, C1, C2, C2, C0, C1, C2, C3};
 
  // Neon pixel array: Encodes which pixels to load
- assign NEON_PIXEL_ARRAY = {3'd1,3'd1,3'd2,3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4,3'd0,3'd1,3'd2,3'd1,3'd0,
-                            3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4,3'd0,3'd1,3'd2,3'd1,3'd0,
-                            3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4,3'd0,3'd1,3'd2,3'd1,3'd0};
+ assign NEON_PIXEL_ARRAY = 
+    {3'd1,3'd1,3'd2,3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,
+    3'd4,3'd4,3'd4,3'd0,3'd1,3'd2,3'd1,3'd0,3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,
+    3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4,3'd0,3'd1,3'd2,3'd1,3'd0,3'd0,3'd0,
+    3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4,3'd0,3'd1,
+    3'd2,3'd1,3'd0};
 
   // Xmas color array: Encodes color index
- assign XMAS_PIXEL_ARRAY = { 3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4, 
-                            3'd4,3'd4,3'd4,3'd3,3'd3,3'd3,3'd2,3'd2,3'd2,3'd1,3'd1,3'd1,3'd0,3'd0,3'd0,
-                            3'd3,3'd3,3'd3,3'd2,3'd2,3'd2,3'd1,3'd1,3'd1,3'd0,3'd0,3'd0,3'd4,3'd4,3'd4,
-                            3'd2,3'd2,3'd2,3'd1,3'd1,3'd1,3'd0,3'd0,3'd0,3'd4,3'd4,3'd4,3'd3,3'd3,3'd3,
-                            3'd1,3'd1,3'd1};
+ assign XMAS_PIXEL_ARRAY =
+  { 3'd0,3'd0,3'd0,3'd1,3'd1,3'd1,3'd2,3'd2,3'd2,3'd3,3'd3,3'd3,3'd4,3'd4,3'd4, 
+    3'd4,3'd4,3'd4,3'd3,3'd3,3'd3,3'd2,3'd2,3'd2,3'd1,3'd1,3'd1,3'd0,3'd0,3'd0,
+    3'd3,3'd3,3'd3,3'd2,3'd2,3'd2,3'd1,3'd1,3'd1,3'd0,3'd0,3'd0,3'd4,3'd4,3'd4,
+    3'd2,3'd2,3'd2,3'd1,3'd1,3'd1,3'd0,3'd0,3'd0,3'd4,3'd4,3'd4,3'd3,3'd3,3'd3,
+    3'd1,3'd1,3'd1};
+
  // Xmas pixel array: Encodes which pixels to load
- assign XMAS_COLOR_ARRAY =  {C0,C1,C2,C3,C3,C2,C1,C0,C0,C1,C2,C3,C3,C2,C1,C0,C0,C1,C2,C3,
-                            C0,C2,C1,C3,C3,C1,C2,C0,C0,C2,C1,C3,C3,C1,C2,C0,C0,C2,C1,C3,
-                            C0,C0,C1,C1,C2,C2,C3,C3,C3,C3,C2,C2,C1,C1,C0,C0,C0,C0,C1,C1,
-                            C0,C1,C2,C3,C3,C2,C1,C0,C0,C1,C2,C3,C3,C2,C1,C0,C0,C1,C2,C3,
-                            C0,C2,C1,C3,C3,C1,C2,C0,C0,C2,C1,C3,C3,C1,C2,C0,C0,C2,C1,C3,
-                            C0,C0,C1,C1,C2,C2,C3,C3,C3,C3,C2,C2,C1,C1,C0,C0,C0,C0,C1,C1,
-                            C2,C2,C3};
+ assign XMAS_COLOR_ARRAY =  
+    {C0,C1,C2,C3,C3,C2,C1,C0,C0,C1,C2,C3,C3,C2,C1,C0,C0,C1,C2,C3,
+    C0,C2,C1,C3,C3,C1,C2,C0,C0,C2,C1,C3,C3,C1,C2,C0,C0,C2,C1,C3,
+    C0,C0,C1,C1,C2,C2,C3,C3,C3,C3,C2,C2,C1,C1,C0,C0,C0,C0,C1,C1,
+    C0,C1,C2,C3,C3,C2,C1,C0,C0,C1,C2,C3,C3,C2,C1,C0,C0,C1,C2,C3,
+    C0,C2,C1,C3,C3,C1,C2,C0,C0,C2,C1,C3,C3,C1,C2,C0,C0,C2,C1,C3,
+    C0,C0,C1,C1,C2,C2,C3,C3,C3,C3,C2,C2,C1,C1,C0,C0,C0,C0,C1,C1,
+    C2,C2,C3};
 endmodule

@@ -35,7 +35,7 @@ module Task2
   logic [5:0] array_count;
   logic array_en, array_clear;
 
-  counter #(6) arrayCounter (.en(array_en), .clear(array_clear), .q(array_count),
+  counter #(6) arrayCounter (.en(array_en), .clear(array_clear),.q(array_count),
                               .d(6'd0), .clock(clock), .reset(reset));
 
 
